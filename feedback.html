@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Feedback — Arla Aesthetics</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="page-stack">
+  <nav class="proto-nav">
+    <a href="index.html">Overview</a>
+    <a href="case-submitted.html">Case Submitted</a>
+    <a href="treatment-plan.html">Treatment Plan</a>
+    <a href="feedback.html" class="active">Feedback</a>
+  </nav>
+  <div class="card">
+    <p class="brand">Arla Aesthetics</p>
+    <h1>Treatment Feedback</h1>
+    <div class="step-indicator">
+      <span class="step-label">Step 3 of 3</span>
+      <div class="step-bar"><div class="step-bar-fill" style="width: 100%;"></div></div>
+    </div>
+
+    <div id="feedback-form">
+      <label>How would you rate this treatment plan?</label>
+      <div class="star-rating" id="star-rating" role="radiogroup" aria-label="Rating">
+        <button class="star" data-value="1" type="button" aria-label="1 star">★</button>
+        <button class="star" data-value="2" type="button" aria-label="2 stars">★</button>
+        <button class="star" data-value="3" type="button" aria-label="3 stars">★</button>
+        <button class="star" data-value="4" type="button" aria-label="4 stars">★</button>
+        <button class="star" data-value="5" type="button" aria-label="5 stars">★</button>
+      </div>
+
+      <label>Was this plan modified before treatment?</label>
+      <div class="btn-toggle-group">
+        <button class="btn-toggle" data-modified="yes" type="button">Yes</button>
+        <button class="btn-toggle" data-modified="no" type="button">No</button>
+      </div>
+
+      <div class="field">
+        <label for="comment">
+          Comments
+          <span style="color: var(--color-text-muted); font-size: 11px; letter-spacing: 0;">(optional)</span>
+        </label>
+        <textarea id="comment" name="comment" placeholder="Share any observations about the plan or treatment outcome…"></textarea>
+      </div>
+
+      <div class="action-row">
+        <a href="treatment-plan.html" class="btn btn-secondary" style="text-decoration: none;">← Back</a>
+        <button id="btn-submit" type="button" class="btn btn-primary" style="width: auto;">Submit Feedback</button>
+      </div>
+    </div>
+
+    <div id="feedback-success" hidden>
+      <p class="success-msg">Thank you. Your feedback has been recorded.</p>
+      <a href="index.html" class="btn btn-secondary" style="text-decoration: none;">Back to overview</a>
+    </div>
+  </div>
+  </div>
+
+  <script>
+    const stars = document.querySelectorAll('.star');
+    const toggles = document.querySelectorAll('.btn-toggle');
+    let rating = 0;
+
+    stars.forEach(star => {
+      const val = Number(star.dataset.value);
+
+      star.addEventListener('mouseenter', () => {
+        stars.forEach(s => s.classList.toggle('active', Number(s.dataset.value) <= val));
+      });
+
+      star.addEventListener('click', () => {
+        rating = val;
+        stars.forEach(s => s.classList.toggle('active', Number(s.dataset.value) <= rating));
+      });
+    });
+
+    // Restore locked rating on mouse-out
+    document.getElementById('star-rating').addEventListener('mouseleave', () => {
+      stars.forEach(s => s.classList.toggle('active', Number(s.dataset.value) <= rating));
+    });
+
+    toggles.forEach(btn => {
+      btn.addEventListener('click', () => {
+        toggles.forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+      });
+    });
+
+    document.getElementById('btn-submit').addEventListener('click', () => {
+      document.getElementById('feedback-form').hidden = true;
+      document.getElementById('feedback-success').hidden = false;
+    });
+  </script>
+</body>
+</html>

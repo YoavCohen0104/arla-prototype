@@ -266,6 +266,199 @@ textarea.invalid {
   margin: 24px 0;
 }
 
+/* ── Prototype nav ── */
+.page-stack {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 520px;
+}
+
+.proto-nav {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 2px;
+  margin-bottom: 10px;
+}
+
+.proto-nav a {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+  text-decoration: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  transition: color 0.15s, background 0.15s;
+}
+
+.proto-nav a:hover {
+  color: var(--color-rose);
+  background: var(--color-rose-pale);
+}
+
+.proto-nav a.active {
+  color: var(--color-rose);
+}
+
+/* ── Treatment Plan Loop ── */
+
+.screen-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.screen-list li {
+  border-bottom: 1px solid var(--color-border);
+}
+
+.screen-list li:last-child {
+  border-bottom: none;
+}
+
+.screen-list a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 0;
+  color: var(--color-text);
+  text-decoration: none;
+  gap: 12px;
+}
+
+.screen-name {
+  font-size: 15px;
+}
+
+.screen-desc {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  margin-top: 2px;
+}
+
+.screen-arrow {
+  color: var(--color-rose-light);
+  font-size: 18px;
+  flex-shrink: 0;
+  transition: color 0.15s;
+}
+
+.screen-list a:hover .screen-arrow {
+  color: var(--color-rose);
+}
+
+.status-badge {
+  display: inline-block;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 4px 12px;
+  border-radius: 20px;
+  margin-bottom: 24px;
+}
+
+.status-pending {
+  background: var(--color-rose-pale);
+  color: var(--color-rose);
+  border: 1px solid var(--color-rose-light);
+}
+
+.section-heading {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-text-muted);
+  margin: 24px 0 10px;
+  font-weight: normal;
+}
+
+.patient-context {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  margin-bottom: 4px;
+}
+
+.expert-attribution {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  margin-bottom: 4px;
+}
+
+.injection-list {
+  padding-left: 18px;
+  margin: 0;
+}
+
+.injection-list li {
+  padding: 10px 0;
+  border-bottom: 1px solid var(--color-border);
+  font-size: 15px;
+}
+
+.injection-list li:last-child {
+  border-bottom: none;
+}
+
+.injection-note {
+  display: block;
+  font-size: 12px;
+  color: var(--color-text-muted);
+  margin-top: 3px;
+}
+
+.star-rating {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.star {
+  background: none;
+  border: none;
+  font-size: 28px;
+  cursor: pointer;
+  color: var(--color-rose-light);
+  transition: color 0.15s;
+  padding: 0;
+  line-height: 1;
+}
+
+.star.active {
+  color: var(--color-rose);
+}
+
+.btn-toggle-group {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.btn-toggle {
+  padding: 8px 24px;
+  border-radius: 7px;
+  border: 1.5px solid var(--color-rose-light);
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 14px;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.btn-toggle.selected {
+  background: var(--color-rose);
+  color: #fff;
+  border-color: var(--color-rose);
+}
+
+.success-msg {
+  color: var(--color-text);
+  font-size: 16px;
+  margin-bottom: 20px;
+}
+
 @media (max-width: 560px) {
   .card {
     padding: 28px 20px;
