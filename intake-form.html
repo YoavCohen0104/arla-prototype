@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Patient Intake — Arla Aesthetics</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="card">
+    <p class="brand">Arla Aesthetics</p>
+    <h1>Patient Intake</h1>
+
+    <form id="intake-form" novalidate>
+
+      <div class="field">
+        <label for="name">Full Name</label>
+        <input
+          type="text"
+          id="name"
+          name="name"
+          placeholder="e.g. Sarah Mitchell"
+          autocomplete="name"
+        />
+        <span class="error-msg" id="name-error"></span>
+      </div>
+
+      <div class="field">
+        <label for="phone">Phone Number</label>
+        <input
+          type="tel"
+          id="phone"
+          name="phone"
+          placeholder="e.g. +1 212 555 0190"
+          autocomplete="tel"
+        />
+        <span class="error-msg" id="phone-error"></span>
+      </div>
+
+      <div class="field">
+        <label for="dob">Date of Birth</label>
+        <input
+          type="date"
+          id="dob"
+          name="dob"
+          autocomplete="bday"
+        />
+        <span class="error-msg" id="dob-error"></span>
+      </div>
+
+      <div class="field">
+        <label for="gender">Gender</label>
+        <select id="gender" name="gender">
+          <option value="">Select…</option>
+          <option value="Female">Female</option>
+          <option value="Male">Male</option>
+          <option value="Non-binary">Non-binary</option>
+          <option value="Prefer not to say">Prefer not to say</option>
+        </select>
+        <span class="error-msg" id="gender-error"></span>
+      </div>
+
+      <div class="field">
+        <label for="complaint">Chief Complaint</label>
+        <textarea
+          id="complaint"
+          name="complaint"
+          placeholder="Describe the patient's primary concern or reason for visit…"
+        ></textarea>
+        <span class="error-msg" id="complaint-error"></span>
+      </div>
+
+      <button type="submit" class="btn btn-primary">Review &amp; Confirm</button>
+
+    </form>
+  </div>
+
+  <script src="intake.js"></script>
+</body>
+</html>

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Confirm Intake — Arla Aesthetics</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="card" id="confirm-container">
+    <p class="brand">Arla Aesthetics</p>
+    <h1>Review Patient Details</h1>
+
+    <div class="confirm-summary">
+
+      <div class="confirm-row">
+        <span class="confirm-label">Full Name</span>
+        <span class="confirm-value" id="cv-name"></span>
+      </div>
+
+      <div class="confirm-row">
+        <span class="confirm-label">Phone</span>
+        <span class="confirm-value" id="cv-phone"></span>
+      </div>
+
+      <div class="confirm-row">
+        <span class="confirm-label">Date of Birth</span>
+        <span class="confirm-value" id="cv-dob"></span>
+      </div>
+
+      <div class="confirm-row">
+        <span class="confirm-label">Gender</span>
+        <span class="confirm-value" id="cv-gender"></span>
+      </div>
+
+      <div class="confirm-row complaint-row">
+        <span class="confirm-label">Chief Complaint</span>
+        <span class="confirm-value" id="cv-complaint"></span>
+      </div>
+
+    </div>
+
+    <div class="action-row">
+      <button class="btn btn-secondary" id="btn-edit">Edit</button>
+      <button class="btn btn-primary" id="btn-confirm" style="width:auto;">Confirm &amp; Start Case</button>
+    </div>
+  </div>
+
+  <script src="intake.js"></script>
+</body>
+</html>
