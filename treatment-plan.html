@@ -5,6 +5,39 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Treatment Plan — Arla Aesthetics</title>
   <link rel="stylesheet" href="style.css" />
+  <style>
+    .injection-marker {
+      position: absolute;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: rgba(181, 115, 122, 0.9);
+      border: 2px solid #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-weight: 700;
+      font-size: 12px;
+      transform: translate(-50%, -50%);
+      cursor: pointer;
+      transition: box-shadow 0.2s, background 0.2s;
+    }
+    .injection-marker.highlight {
+      background: #b5737a;
+      box-shadow: 0 0 0 5px rgba(181, 115, 122, 0.35);
+    }
+    .injection-list li {
+      border-radius: 6px;
+      padding: 4px 8px;
+      margin: 2px -8px;
+      transition: background 0.2s;
+      cursor: default;
+    }
+    .injection-list li.highlight {
+      background: var(--color-rose-pale);
+    }
+  </style>
 </head>
 <body>
   <div class="page-stack">
@@ -33,22 +66,38 @@
     </p>
 
     <h2 class="section-heading">Injection Points</h2>
+
+    <!-- Pre-treatment clinical photo with numbered injection markers overlaid -->
+    <div style="position: relative; max-width: 320px; margin: 16px auto; border-radius: 12px; overflow: hidden; border: 1px solid var(--color-border);">
+      <img
+        src="https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=400"
+        alt="Pre-treatment clinical documentation photo — injection point overlay"
+        style="width: 100%; display: block;"
+      />
+
+      <div class="injection-marker" data-point="1" style="left: 50%; top: 36%;">1</div>
+      <div class="injection-marker" data-point="2" style="left: 28%; top: 46%;">2</div>
+      <div class="injection-marker" data-point="3" style="left: 72%; top: 46%;">3</div>
+      <div class="injection-marker" data-point="4" style="left: 50%; top: 65%;">4</div>
+    </div>
+
+    <!-- Expert notes — numbers match dot markers on the photo above -->
     <ol class="injection-list">
-      <li>
-        Left zygoma — Juvederm Voluma 1.0 ml
-        <span class="injection-note">Deep injection, periosteal plane. Bolus technique.</span>
+      <li data-point="1">
+        Forehead — Botox 4 units, superficial
+        <span class="injection-note">Frontalis muscle. Dilute 2u/0.1ml. Fan pattern, 4 equal points.</span>
       </li>
-      <li>
-        Right zygoma — Juvederm Voluma 1.0 ml
-        <span class="injection-note">Match left side for symmetry. Assess lift before proceeding.</span>
+      <li data-point="2">
+        Left crow's feet — Botox 6 units, superficial
+        <span class="injection-note">Orbicularis oculi lateral fibers. 3 points, 2u each. Stay 1 cm from orbital rim.</span>
       </li>
-      <li>
-        Left nasolabial fold — Juvederm Ultra 0.5 ml
-        <span class="injection-note">Linear threading, retrograde. Mid-dermis plane.</span>
+      <li data-point="3">
+        Right crow's feet — Botox 6 units, superficial
+        <span class="injection-note">Mirror left side. Assess symmetry before withdrawing.</span>
       </li>
-      <li>
-        Right nasolabial fold — Juvederm Ultra 0.5 ml
-        <span class="injection-note">Linear threading, retrograde. Mirror left side result.</span>
+      <li data-point="4">
+        Upper lip border — Filler 0.3 ml, deep
+        <span class="injection-note">Vermillion border, linear threading. Juvederm Ultra. Avoid labial artery.</span>
       </li>
     </ol>
 
@@ -58,5 +107,24 @@
     </div>
   </div>
   </div>
+  <script>
+    const markers = document.querySelectorAll('.injection-marker');
+    const notes   = document.querySelectorAll('.injection-list li');
+
+    function setHighlight(point) {
+      markers.forEach(m => m.classList.toggle('highlight', m.dataset.point === point));
+      notes.forEach(n => n.classList.toggle('highlight', n.dataset.point === point));
+    }
+
+    function clearHighlight() {
+      markers.forEach(m => m.classList.remove('highlight'));
+      notes.forEach(n => n.classList.remove('highlight'));
+    }
+
+    [...markers, ...notes].forEach(el => {
+      el.addEventListener('mouseenter', () => setHighlight(el.dataset.point));
+      el.addEventListener('mouseleave', clearHighlight);
+    });
+  </script>
 </body>
 </html>
