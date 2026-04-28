@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Expert Dashboard — Arla Aesthetics</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* ── Expert queue urgency indicator ── */
+    .queue-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--color-border);
+    }
+    .queue-item:last-child {
+      border-bottom: none;
+    }
+    .queue-item--urgent {
+      background: var(--color-rose-pale);
+      border: 1px solid var(--color-rose-light);
+      border-left: 4px solid var(--color-rose);
+      border-radius: var(--radius);
+      padding: 16px 16px 16px 14px;
+      margin-bottom: 8px;
+      box-shadow: 0 4px 16px rgba(181, 115, 122, 0.12);
+    }
+    .queue-item-body { flex: 1; min-width: 0; }
+    .queue-patient {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--color-text);
+      margin-bottom: 2px;
+    }
+    .queue-meta {
+      font-size: 12px;
+      color: var(--color-text-muted);
+    }
+    .queue-age {
+      font-size: 12px;
+      color: var(--color-text-muted);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .queue-age--overdue {
+      color: #c0392b;
+      font-weight: 600;
+    }
+
+    /* ── Completed case row ── */
+    .done-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--color-border);
+    }
+    .done-row:last-child {
+      border-bottom: none;
+    }
+    .done-check {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #7ab57a;
+      color: #fff;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .done-patient {
+      font-size: 14px;
+      color: var(--color-text);
+      flex: 1;
+    }
+    .done-meta {
+      font-size: 12px;
+      color: var(--color-text-muted);
+    }
+
+    /* ── Expert profile strip ── */
+    .expert-profile {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--color-border);
+      margin-bottom: 0;
+    }
+    .expert-profile-avatar {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: var(--color-rose);
+      color: #fff;
+      font-family: Georgia, serif;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      position: relative;
+    }
+    .expert-profile-avatar::after {
+      content: '';
+      position: absolute;
+      bottom: 2px;
+      right: 2px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #5aab6b;
+      border: 2px solid var(--color-card);
+    }
+    .expert-profile-name {
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--color-text);
+      margin-bottom: 2px;
+    }
+    .expert-profile-title {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--color-text-muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="page-stack">
+  <nav class="proto-nav">
+    <a href="index.html">Injector View</a>
+    <a href="expert-dashboard.html" class="active">Expert View</a>
+    <a href="case-submitted.html">Case Submitted</a>
+    <a href="treatment-plan.html">Treatment Plan</a>
+    <a href="feedback.html">Feedback</a>
+  </nav>
+  <div class="card">
+    <p class="brand">Arla Aesthetics</p>
+
+    <!-- Expert identity and online status -->
+    <div class="expert-profile">
+      <div class="expert-profile-avatar">AO</div>
+      <div>
+        <div class="expert-profile-name">Dr. Amara Osei</div>
+        <div class="expert-profile-title">Senior Aesthetic Expert &middot; 11 yrs</div>
+      </div>
+    </div>
+
+    <!-- Queue stats at a glance -->
+    <p class="section-heading">Today</p>
+    <div class="stat-strip">
+      <div class="stat-item stat-item--ready">
+        <span class="stat-number">4</span>
+        <span class="stat-label">In queue</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-number">6</span>
+        <span class="stat-label">Reviewed</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-number">3m</span>
+        <span class="stat-label">Avg time</span>
+      </div>
+    </div>
+
+    <!-- Highest-priority case — oldest in queue, needs a plan now -->
+    <p class="section-heading" style="margin-top: 0;">Needs review now</p>
+    <div class="queue-item queue-item--urgent">
+      <div class="queue-item-body">
+        <div class="queue-patient">Sarah Chen</div>
+        <div class="queue-meta">ARL-2026-0042 &middot; Volume loss, nasolabial folds</div>
+      </div>
+      <a href="treatment-plan.html" class="btn btn-primary" style="width: auto; margin-top: 0; white-space: nowrap; text-decoration: none;">Write Plan &rarr;</a>
+    </div>
+
+    <!-- Remaining cases waiting in queue -->
+    <p class="section-heading">Queue</p>
+    <div class="case-list">
+      <div class="queue-item">
+        <div class="queue-item-body">
+          <div class="queue-patient">James Rivera</div>
+          <div class="queue-meta">ARL-2026-0041 &middot; Forehead lines, brow heaviness</div>
+        </div>
+        <span class="queue-age">12 min</span>
+      </div>
+      <div class="queue-item">
+        <div class="queue-item-body">
+          <div class="queue-patient">Mei Tanaka</div>
+          <div class="queue-meta">ARL-2026-0040 &middot; Lip augmentation, cupid's bow</div>
+        </div>
+        <span class="queue-age">28 min</span>
+      </div>
+      <div class="queue-item">
+        <div class="queue-item-body">
+          <div class="queue-patient">Aisha Okonkwo</div>
+          <div class="queue-meta">ARL-2026-0039 &middot; Crow's feet, under-eye hollowing</div>
+        </div>
+        <!-- Red text signals this case is approaching the 45-min SLA -->
+        <span class="queue-age queue-age--overdue">44 min</span>
+      </div>
+    </div>
+
+    <hr class="divider" />
+
+    <!-- Completed plans from earlier today -->
+    <p class="section-heading" style="margin-top: 0;">Completed today</p>
+    <div>
+      <div class="done-row">
+        <div class="done-check">✓</div>
+        <div class="done-patient">Priya Sharma</div>
+        <div class="done-meta">ARL-2026-0038 &middot; 9:14 am</div>
+      </div>
+      <div class="done-row">
+        <div class="done-check">✓</div>
+        <div class="done-patient">Lucas Ferreira</div>
+        <div class="done-meta">ARL-2026-0037 &middot; 8:52 am</div>
+      </div>
+      <div class="done-row">
+        <div class="done-check">✓</div>
+        <div class="done-patient">Hana Müller</div>
+        <div class="done-meta">ARL-2026-0036 &middot; 8:31 am</div>
+      </div>
+      <div class="done-row">
+        <div class="done-check">✓</div>
+        <div class="done-patient">Omar Al-Rashid</div>
+        <div class="done-meta">ARL-2026-0035 &middot; 8:07 am</div>
+      </div>
+      <div class="done-row">
+        <div class="done-check">✓</div>
+        <div class="done-patient">Chloe Beaumont</div>
+        <div class="done-meta">ARL-2026-0034 &middot; 7:48 am</div>
+      </div>
+      <div class="done-row">
+        <div class="done-check">✓</div>
+        <div class="done-patient">Yuki Nakamura</div>
+        <div class="done-meta">ARL-2026-0033 &middot; 7:22 am</div>
+      </div>
+    </div>
+
+    <div class="action-row" style="margin-top: 28px;">
+      <a href="index.html" class="btn btn-secondary" style="text-decoration: none;">← Injector view</a>
+    </div>
+  </div>
+  </div>
+</body>
+</html>
