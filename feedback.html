@@ -97,7 +97,24 @@
       document.getElementById('comment').focus();
     });
 
-    document.getElementById('btn-submit').addEventListener('click', () => {
+    document.getElementById('btn-submit').addEventListener('click', async () => {
+      const payload = {
+        rating,
+        modified,
+        comment: document.getElementById('comment').value.trim(),
+        timestamp: new Date().toISOString(),
+      };
+
+      try {
+        await fetch('https://yoavcohen.app.n8n.cloud/webhook-test/arla-feedback', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+      } catch (err) {
+        console.error('Feedback webhook failed:', err);
+      }
+
       document.getElementById('feedback-form').hidden = true;
       document.getElementById('feedback-success').hidden = false;
     });
