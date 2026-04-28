@@ -241,6 +241,12 @@ textarea.invalid {
   word-break: break-word;
 }
 
+/* Metadata values (e.g. timestamp) render smaller and muted */
+.confirm-value--meta {
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
 /* Chief complaint spans full width on confirm */
 .confirm-row.complaint-row {
   flex-direction: column;

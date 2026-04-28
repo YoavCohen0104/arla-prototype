@@ -132,6 +132,8 @@ function initForm() {
     }
 
     clearErrors();
+    // Stamp creation time so the confirm page can show it
+    data.createdAt = new Date().toISOString();
     saveToSession(data);
     window.location.href = 'intake-confirm.html';
   });
@@ -177,11 +179,22 @@ function renderConfirmation(data) {
     if (el) el.textContent = value;
   };
 
-  set('cv-name',      data.name);
-  set('cv-phone',     data.phone);
-  set('cv-dob',       dobDisplay);
-  set('cv-gender',    data.gender);
-  set('cv-complaint', data.complaint);
+  // Format creation timestamp for display
+  let createdDisplay = '';
+  if (data.createdAt) {
+    const dt = new Date(data.createdAt);
+    createdDisplay = dt.toLocaleString(undefined, {
+      month: 'short', day: 'numeric', year: 'numeric',
+      hour: 'numeric', minute: '2-digit',
+    });
+  }
+
+  set('cv-name',       data.name);
+  set('cv-phone',      data.phone);
+  set('cv-dob',        dobDisplay);
+  set('cv-gender',     data.gender);
+  set('cv-complaint',  data.complaint);
+  set('cv-created-at', createdDisplay);
 }
 
 /* ── Bootstrap ── */
