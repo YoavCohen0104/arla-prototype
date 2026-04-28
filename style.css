@@ -459,6 +459,61 @@ textarea.invalid {
   margin-bottom: 20px;
 }
 
+/* ── Quick feedback (feedback.html) ── */
+.feedback-section-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--color-text-muted);
+  margin-bottom: 10px;
+}
+
+/* Larger stars — full-width spread, easy tap target */
+.star-rating--quick {
+  justify-content: space-between;
+  gap: 0;
+  margin-bottom: 28px;
+}
+
+.star-rating--quick .star {
+  font-size: 40px;
+  padding: 8px 6px;
+  min-width: 48px;
+  min-height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Full-width toggle buttons with generous tap area */
+.btn-toggle-group--quick {
+  margin-bottom: 0;
+}
+
+.btn-toggle--quick {
+  flex: 1;
+  padding: 14px 0;
+  font-size: 16px;
+  text-align: center;
+}
+
+/* Inline text link to expand the note field */
+.btn-add-note {
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  font-family: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  padding: 14px 0 20px;
+  display: block;
+  text-align: left;
+}
+
+.btn-add-note:hover {
+  color: var(--color-rose);
+}
+
 /* ── Expert assignment card (case-submitted) ── */
 .expert-card {
   display: flex;
