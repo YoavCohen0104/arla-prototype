@@ -6,10 +6,88 @@
   <title>Treatment Plan — Arla Aesthetics</title>
   <link rel="stylesheet" href="style.css" />
   <style>
+    /* ── Compact header for in-procedure use ── */
+    .plan-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 4px;
+    }
+    .plan-patient {
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--color-text);
+    }
+    .plan-id {
+      font-size: 13px;
+      color: var(--color-text-muted);
+      flex-shrink: 0;
+    }
+    .plan-attribution {
+      font-size: 13px;
+      color: var(--color-text-muted);
+      margin-bottom: 20px;
+    }
+
+    /* ── Collapsible assessment ── */
+    .assessment-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--color-text-muted);
+      background: var(--color-rose-pale);
+      border: 1px solid var(--color-border);
+      border-radius: 6px;
+      padding: 8px 12px;
+      cursor: pointer;
+      width: 100%;
+      text-align: left;
+      margin-bottom: 20px;
+      transition: background 0.15s;
+    }
+    .assessment-toggle:hover {
+      background: var(--color-rose-light);
+    }
+    .assessment-toggle .chevron {
+      margin-left: auto;
+      font-size: 11px;
+      transition: transform 0.2s;
+    }
+    .assessment-toggle[aria-expanded="true"] .chevron {
+      transform: rotate(180deg);
+    }
+    .assessment-body {
+      font-size: 14px;
+      color: var(--color-text);
+      line-height: 1.6;
+      border: 1px solid var(--color-border);
+      border-radius: 0 0 6px 6px;
+      padding: 12px 14px;
+      margin-top: -20px;
+      margin-bottom: 20px;
+      background: #fff;
+    }
+    .assessment-body[hidden] { display: none; }
+
+    /* ── Reference photo ── */
+    .photo-wrap {
+      position: relative;
+      max-width: 260px;
+      margin: 0 auto 24px;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid var(--color-border);
+    }
+    .photo-wrap img {
+      width: 100%;
+      display: block;
+    }
     .injection-marker {
       position: absolute;
-      width: 24px;
-      height: 24px;
+      width: 26px;
+      height: 26px;
       border-radius: 50%;
       background: rgba(181, 115, 122, 0.9);
       border: 2px solid #fff;
@@ -21,21 +99,150 @@
       font-size: 12px;
       transform: translate(-50%, -50%);
       cursor: pointer;
-      transition: box-shadow 0.2s, background 0.2s;
+      transition: box-shadow 0.15s, background 0.15s;
     }
-    .injection-marker.highlight {
+    .injection-marker.highlight,
+    .injection-marker.done-highlight {
       background: #b5737a;
       box-shadow: 0 0 0 5px rgba(181, 115, 122, 0.35);
     }
-    .injection-list li {
-      border-radius: 6px;
-      padding: 4px 8px;
-      margin: 2px -8px;
-      transition: background 0.2s;
-      cursor: default;
+    .injection-marker.done {
+      background: #7ab57a;
+      border-color: #fff;
     }
-    .injection-list li.highlight {
+
+    /* ── Step cards ── */
+    .steps-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--color-text-muted);
+      margin-bottom: 10px;
+    }
+    .step-card {
+      display: grid;
+      grid-template-columns: 40px 1fr auto;
+      gap: 0 12px;
+      align-items: start;
+      border: 1.5px solid var(--color-border);
+      border-radius: 10px;
+      padding: 14px 14px 14px 12px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .step-card:hover {
+      border-color: var(--color-rose-light);
+    }
+    .step-card.highlight {
+      border-color: var(--color-rose);
       background: var(--color-rose-pale);
+    }
+    .step-card.done {
+      opacity: 0.55;
+      border-color: var(--color-border);
+      background: #f9f9f9;
+    }
+    .step-number {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--color-rose-pale);
+      border: 1.5px solid var(--color-rose-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--color-rose);
+      flex-shrink: 0;
+    }
+    .step-card.done .step-number {
+      background: #e8f4e8;
+      border-color: #b5d4b5;
+      color: #5a9a5a;
+    }
+    .step-body { min-width: 0; }
+    .step-site {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--color-text);
+      margin-bottom: 5px;
+    }
+    .step-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-bottom: 6px;
+    }
+    .badge {
+      font-size: 12px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 20px;
+      background: var(--color-rose-pale);
+      color: var(--color-rose);
+      border: 1px solid var(--color-rose-light);
+    }
+    .badge.depth {
+      background: #f0f0f4;
+      color: #666;
+      border-color: #d8d8e0;
+    }
+    .step-note {
+      font-size: 13px;
+      color: var(--color-text-muted);
+      line-height: 1.5;
+    }
+    /* Checkmark column */
+    .step-check {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      border: 2px solid var(--color-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: transparent;
+      font-size: 14px;
+      flex-shrink: 0;
+      margin-top: 4px;
+      transition: border-color 0.15s, background 0.15s, color 0.15s;
+    }
+    .step-card.done .step-check {
+      border-color: #7ab57a;
+      background: #7ab57a;
+      color: #fff;
+    }
+
+    /* ── Progress strip ── */
+    .progress-strip {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 20px;
+      font-size: 13px;
+      color: var(--color-text-muted);
+    }
+    .progress-dots {
+      display: flex;
+      gap: 5px;
+    }
+    .progress-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      border: 1.5px solid var(--color-border);
+      background: #fff;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .progress-dot.done {
+      background: #7ab57a;
+      border-color: #7ab57a;
+    }
+    .progress-count {
+      margin-left: auto;
     }
   </style>
 </head>
@@ -49,82 +256,163 @@
   </nav>
   <div class="card">
     <p class="brand">Arla Aesthetics</p>
-    <h1>Treatment Plan</h1>
-    <div class="step-indicator">
-      <span class="step-label">Step 2 of 3</span>
-      <div class="step-bar"><div class="step-bar-fill" style="width: 67%;"></div></div>
-    </div>
-    <p class="patient-context">Sarah Chen · ARL-2026-0042</p>
-    <p class="expert-attribution">Plan by Dr. Amara Osei · April 27, 2026</p>
 
-    <h2 class="section-heading">Assessment</h2>
-    <p style="font-size: 15px; color: var(--color-text);">
+    <div class="plan-header">
+      <span class="plan-patient">Sarah Chen</span>
+      <span class="plan-id">ARL-2026-0042</span>
+    </div>
+    <p class="plan-attribution">Plan by Dr. Amara Osei · April 27, 2026</p>
+
+    <!-- Assessment collapsed by default — read before procedure, not during -->
+    <button class="assessment-toggle" aria-expanded="false" aria-controls="assessment-body">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M8 5v4M8 11v.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      Assessment &amp; notes
+      <span class="chevron">▼</span>
+    </button>
+    <div id="assessment-body" class="assessment-body" hidden>
       Patient presents with moderate dynamic forehead lines (frontalis activity), bilateral
       periorbital rhytids at the lateral canthi (crow's feet), and mild vermillion border
       definition loss. No prior neurotoxin or filler history reported. Skin laxity is mild.
       Recommend addressing dynamic lines with conservative Botox dosing and restoring lip border
       definition with minimal filler volume. Reassess in 2 weeks for neurotoxin effect.
-    </p>
+    </div>
 
-    <h2 class="section-heading">Injection Points</h2>
-
-    <!-- Pre-treatment clinical photo with numbered injection markers overlaid -->
-    <div style="position: relative; max-width: 320px; margin: 16px auto; border-radius: 12px; overflow: hidden; border: 1px solid var(--color-border);">
+    <!-- Compact reference photo with numbered markers -->
+    <div class="photo-wrap">
       <img
         src="https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=400"
-        alt="Pre-treatment clinical documentation photo — injection point overlay"
-        style="width: 100%; display: block;"
+        alt="Pre-treatment clinical documentation photo"
       />
-
       <div class="injection-marker" data-point="1" style="left: 50%; top: 36%;">1</div>
       <div class="injection-marker" data-point="2" style="left: 28%; top: 46%;">2</div>
       <div class="injection-marker" data-point="3" style="left: 72%; top: 46%;">3</div>
       <div class="injection-marker" data-point="4" style="left: 50%; top: 65%;">4</div>
     </div>
 
-    <!-- Expert notes — numbers match dot markers on the photo above -->
-    <ol class="injection-list">
-      <li data-point="1">
-        Forehead — Botox 4 units, superficial
-        <span class="injection-note">Frontalis muscle. Dilute 2u/0.1ml. Fan pattern, 4 equal points.</span>
-      </li>
-      <li data-point="2">
-        Left crow's feet — Botox 6 units, superficial
-        <span class="injection-note">Orbicularis oculi lateral fibers. 3 points, 2u each. Stay 1 cm from orbital rim.</span>
-      </li>
-      <li data-point="3">
-        Right crow's feet — Botox 6 units, superficial
-        <span class="injection-note">Mirror left side. Assess symmetry before withdrawing.</span>
-      </li>
-      <li data-point="4">
-        Upper lip border — Filler 0.3 ml, deep
-        <span class="injection-note">Vermillion border, linear threading. Juvederm Ultra. Avoid labial artery.</span>
-      </li>
-    </ol>
+    <!-- Progress indicator -->
+    <div class="progress-strip">
+      <div class="progress-dots" id="progress-dots">
+        <div class="progress-dot" data-dot="1"></div>
+        <div class="progress-dot" data-dot="2"></div>
+        <div class="progress-dot" data-dot="3"></div>
+        <div class="progress-dot" data-dot="4"></div>
+      </div>
+      <span class="progress-count" id="progress-count">0 of 4 done</span>
+    </div>
 
-    <div class="action-row" style="margin-top: 32px;">
+    <!-- Injection step cards — tap to mark done -->
+    <p class="steps-label">Injection steps — tap to mark complete</p>
+
+    <div class="step-card" data-point="1" role="button" tabindex="0" aria-pressed="false">
+      <div class="step-number">1</div>
+      <div class="step-body">
+        <div class="step-site">Forehead</div>
+        <div class="step-badges">
+          <span class="badge">Botox 4 u</span>
+          <span class="badge depth">Superficial</span>
+        </div>
+        <div class="step-note">Frontalis muscle. Dilute 2u/0.1ml. Fan pattern, 4 equal points.</div>
+      </div>
+      <div class="step-check">✓</div>
+    </div>
+
+    <div class="step-card" data-point="2" role="button" tabindex="0" aria-pressed="false">
+      <div class="step-number">2</div>
+      <div class="step-body">
+        <div class="step-site">Left crow's feet</div>
+        <div class="step-badges">
+          <span class="badge">Botox 6 u</span>
+          <span class="badge depth">Superficial</span>
+        </div>
+        <div class="step-note">Orbicularis oculi lateral fibers. 3 points, 2u each. Stay 1 cm from orbital rim.</div>
+      </div>
+      <div class="step-check">✓</div>
+    </div>
+
+    <div class="step-card" data-point="3" role="button" tabindex="0" aria-pressed="false">
+      <div class="step-number">3</div>
+      <div class="step-body">
+        <div class="step-site">Right crow's feet</div>
+        <div class="step-badges">
+          <span class="badge">Botox 6 u</span>
+          <span class="badge depth">Superficial</span>
+        </div>
+        <div class="step-note">Mirror left side. Assess symmetry before withdrawing.</div>
+      </div>
+      <div class="step-check">✓</div>
+    </div>
+
+    <div class="step-card" data-point="4" role="button" tabindex="0" aria-pressed="false">
+      <div class="step-number">4</div>
+      <div class="step-body">
+        <div class="step-site">Upper lip border</div>
+        <div class="step-badges">
+          <span class="badge">Filler 0.3 ml</span>
+          <span class="badge depth">Deep</span>
+        </div>
+        <div class="step-note">Vermillion border, linear threading. Juvederm Ultra. Avoid labial artery.</div>
+      </div>
+      <div class="step-check">✓</div>
+    </div>
+
+    <div class="action-row" style="margin-top: 28px;">
       <a href="case-submitted.html" class="btn btn-secondary" style="text-decoration: none;">← Back</a>
       <a href="feedback.html" class="btn btn-primary" style="width: auto; text-decoration: none;">Provide Feedback →</a>
     </div>
   </div>
   </div>
-  <script>
-    const markers = document.querySelectorAll('.injection-marker');
-    const notes   = document.querySelectorAll('.injection-list li');
 
+  <script>
+    const markers   = document.querySelectorAll('.injection-marker');
+    const cards     = document.querySelectorAll('.step-card');
+    const dots      = document.querySelectorAll('.progress-dot');
+    const countEl   = document.getElementById('progress-count');
+
+    // ── Hover cross-highlight between photo markers and step cards ──
     function setHighlight(point) {
       markers.forEach(m => m.classList.toggle('highlight', m.dataset.point === point));
-      notes.forEach(n => n.classList.toggle('highlight', n.dataset.point === point));
+      cards.forEach(c => c.classList.toggle('highlight', c.dataset.point === point));
     }
-
     function clearHighlight() {
       markers.forEach(m => m.classList.remove('highlight'));
-      notes.forEach(n => n.classList.remove('highlight'));
+      cards.forEach(c => c.classList.remove('highlight'));
     }
-
-    [...markers, ...notes].forEach(el => {
+    [...markers, ...cards].forEach(el => {
       el.addEventListener('mouseenter', () => setHighlight(el.dataset.point));
       el.addEventListener('mouseleave', clearHighlight);
+    });
+
+    // ── Tap-to-complete step cards ──
+    function updateProgress() {
+      const doneCount = document.querySelectorAll('.step-card.done').length;
+      countEl.textContent = `${doneCount} of 4 done`;
+      dots.forEach(d => d.classList.toggle('done', parseInt(d.dataset.dot) <= doneCount));
+    }
+
+    cards.forEach(card => {
+      function toggle() {
+        const isDone = card.classList.toggle('done');
+        card.setAttribute('aria-pressed', isDone);
+        const point = card.dataset.point;
+        markers.forEach(m => m.classList.toggle('done', m.dataset.point === point && isDone));
+        updateProgress();
+      }
+      card.addEventListener('click', toggle);
+      card.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); } });
+    });
+
+    // ── Assessment accordion ──
+    const toggleBtn  = document.querySelector('.assessment-toggle');
+    const assessBody = document.getElementById('assessment-body');
+    toggleBtn.addEventListener('click', () => {
+      const open = toggleBtn.getAttribute('aria-expanded') === 'true';
+      toggleBtn.setAttribute('aria-expanded', !open);
+      assessBody.hidden = open;
+      // Adjust border-radius so toggle and body join seamlessly when open
+      toggleBtn.style.borderRadius = open ? '6px' : '6px 6px 0 0';
     });
   </script>
 </body>
