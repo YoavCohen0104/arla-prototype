@@ -459,6 +459,69 @@ textarea.invalid {
   margin-bottom: 20px;
 }
 
+/* ── Expert assignment card (case-submitted) ── */
+.expert-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  background: var(--color-rose-pale);
+  border: 1px solid var(--color-rose-light);
+  border-left: 3px solid var(--color-rose);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.expert-avatar {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: var(--color-rose);
+  color: #fff;
+  font-family: Georgia, serif;
+  font-size: 17px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  position: relative;
+}
+
+/* green "online" dot — signals the expert is actively reviewing */
+.expert-avatar::after {
+  content: '';
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: #5aab6b;
+  border: 2px solid var(--color-card);
+}
+
+.expert-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: 2px;
+}
+
+.expert-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--color-text-muted);
+  margin-bottom: 8px;
+}
+
+.expert-message {
+  font-size: 13px;
+  color: var(--color-text);
+  font-style: italic;
+  line-height: 1.5;
+}
+
 @media (max-width: 560px) {
   .card {
     padding: 28px 20px;
