@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Treatment Plan Loop — Arla Aesthetics</title>
+  <title>Clinic Dashboard — Arla Aesthetics</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -16,10 +16,65 @@
   </nav>
   <div class="card">
     <p class="brand">Arla Aesthetics</p>
-    <h1>Treatment Plan Loop</h1>
-    <p style="color: var(--color-text-muted); font-size: 14px; margin-bottom: 28px;">
-      Follow a case from submission through expert review to injector feedback.
-    </p>
+    <h1 style="margin-bottom: 4px; padding-bottom: 0; border-bottom: none;">Today</h1>
+    <p style="color: var(--color-text-muted); font-size: 13px; margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px solid var(--color-border);">Monday, April 28 &middot; Dr. Lena Park</p>
+
+    <!-- Clinic state at a glance: pending / ready / completed -->
+    <div class="stat-strip">
+      <div class="stat-item">
+        <span class="stat-number">3</span>
+        <span class="stat-label">Pending</span>
+      </div>
+      <div class="stat-item stat-item--ready">
+        <span class="stat-number">1</span>
+        <span class="stat-label">Plan ready</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-number">2</span>
+        <span class="stat-label">Done today</span>
+      </div>
+    </div>
+
+    <!-- Highest-priority action: the one plan the injector needs to act on now -->
+    <p class="section-heading" style="margin-top: 0;">Next action</p>
+    <div class="next-action-card">
+      <div>
+        <div style="font-size: 17px; font-weight: 600; color: var(--color-text); margin-bottom: 3px;">Sarah Chen</div>
+        <div style="font-size: 12px; color: var(--color-text-muted);">ARL-2026-0042 &middot; Treatment plan ready</div>
+      </div>
+      <a href="treatment-plan.html" class="btn btn-primary" style="width: auto; margin-top: 0; white-space: nowrap; text-decoration: none;">Review Plan &rarr;</a>
+    </div>
+
+    <!-- Remaining open cases awaiting expert review -->
+    <p class="section-heading">Pending review</p>
+    <div class="case-list">
+      <div class="case-row">
+        <div>
+          <div class="case-name">James Rivera</div>
+          <div class="case-meta">ARL-2026-0041 &middot; Submitted 2 hrs ago</div>
+        </div>
+        <span class="status-badge status-pending" style="margin-bottom: 0;">Pending</span>
+      </div>
+      <div class="case-row">
+        <div>
+          <div class="case-name">Mei Tanaka</div>
+          <div class="case-meta">ARL-2026-0040 &middot; Submitted 4 hrs ago</div>
+        </div>
+        <span class="status-badge status-pending" style="margin-bottom: 0;">Pending</span>
+      </div>
+      <div class="case-row">
+        <div>
+          <div class="case-name">Aisha Okonkwo</div>
+          <div class="case-meta">ARL-2026-0039 &middot; Submitted 6 hrs ago</div>
+        </div>
+        <span class="status-badge status-pending" style="margin-bottom: 0;">Pending</span>
+      </div>
+    </div>
+
+    <hr class="divider" style="margin-top: 0;" />
+
+    <!-- Prototype navigation — jump to any screen in the treatment loop -->
+    <p class="section-heading" style="margin-top: 0;">Prototype screens</p>
     <ol class="screen-list">
       <li>
         <a href="case-submitted.html">
@@ -27,7 +82,7 @@
             <div class="screen-name">1. Case Submitted</div>
             <div class="screen-desc">Pending state after the injector submits a case</div>
           </div>
-          <span class="screen-arrow">→</span>
+          <span class="screen-arrow">&rarr;</span>
         </a>
       </li>
       <li>
@@ -36,7 +91,7 @@
             <div class="screen-name">2. Treatment Plan</div>
             <div class="screen-desc">Expert assessment and injection point breakdown</div>
           </div>
-          <span class="screen-arrow">→</span>
+          <span class="screen-arrow">&rarr;</span>
         </a>
       </li>
       <li>
@@ -45,7 +100,7 @@
             <div class="screen-name">3. Feedback</div>
             <div class="screen-desc">Injector rates the plan and notes any modifications</div>
           </div>
-          <span class="screen-arrow">→</span>
+          <span class="screen-arrow">&rarr;</span>
         </a>
       </li>
     </ol>

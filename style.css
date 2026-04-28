@@ -522,8 +522,99 @@ textarea.invalid {
   line-height: 1.5;
 }
 
+/* ── Clinic dashboard (index.html) ── */
+.stat-strip {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 28px;
+}
+
+.stat-item {
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 8px 12px;
+  text-align: left;
+}
+
+.stat-item--ready {
+  background: var(--color-rose-pale);
+  border-color: var(--color-rose-light);
+}
+
+.stat-number {
+  display: inline;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.stat-item--ready .stat-number {
+  color: var(--color-rose);
+}
+
+.stat-label {
+  display: inline;
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.next-action-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: var(--color-rose-pale);
+  border: 1px solid var(--color-rose-light);
+  border-left: 4px solid var(--color-rose);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 16px rgba(181, 115, 122, 0.14);
+}
+
+.case-list {
+  margin-bottom: 24px;
+}
+
+.case-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--color-border);
+  gap: 12px;
+}
+
+.case-row:last-child {
+  border-bottom: none;
+}
+
+.case-name {
+  font-size: 15px;
+  color: var(--color-text);
+}
+
+.case-meta {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  margin-top: 2px;
+}
+
 @media (max-width: 560px) {
   .card {
     padding: 28px 20px;
+  }
+
+  .next-action-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .next-action-card .btn {
+    width: 100%;
+    text-align: center;
   }
 }
