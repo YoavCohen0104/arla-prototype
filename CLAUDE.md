@@ -71,3 +71,59 @@ Completed feedback forms POST JSON to:
 https://yoavcohen.app.n8n.cloud/webhook/arla-feedback
 ```
 Payload fields: `rating` (int 0–5), `modified` (`"yes"` / `"no"`), `comment` (string), `timestamp` (ISO 8601). The form shows a success message regardless of webhook response so that a network failure never blocks the injector.
+
+## PDD Requirements (Key MVP Screens & Flows)
+
+### Required screens
+- index.html — injector home page showing clinic state:
+  active cases count, pending cases, next action card.
+  Navigation to all flows. Role-aware (injector vs expert 
+  see different views).
+- clinic-login.html — secure login, email + password, 
+  role-based access (Injector, Assistant, Expert)
+- intake-form.html — full name, phone number, birth date, 
+  gender, chief complaint (free text). All required with 
+  validation. Privacy lock after submission.
+- facial-capture.html — 7 guided expressions in sequence:
+  neutral/serious, raised eyebrows, frown, smile, sad,
+  left side view (90°), right side view (90°).
+  Manual initiation per expression. Under ~1 minute total.
+  Still image extraction after capture.
+- intake-confirm.html — read-only summary, edit button,
+  confirm and start case button
+- case-submitted.html — pending state, expert assigned,
+  ~5 min response time indicator. Injector can view 
+  but not edit after submission.
+- expert-annotation.html — expert can click on face image
+  to place numbered dots, set depth per dot 
+  (Superficial/Deep, two-color system), add dosage units
+  per dot, add free-text notes. Submit Plan button.
+- treatment-plan.html — read-only expert plan for injector.
+  Face image with numbered dots, depth color coding,
+  dosage per point, expert notes. Cannot be modified.
+- feedback.html — rating 1-5, optional short comment,
+  indication whether plan was modified (yes/no).
+  Mandatory before case closes.
+- expert-dashboard.html — case queue, SLA indicators,
+  expert profile, cases by status
+
+### Case status lifecycle
+Pending → In Review → Planned → Closed
+
+### User roles
+- Injector: creates cases, performs treatments, gives feedback
+- Assistant: supports intake and facial capture only
+- Expert: reviews cases, creates treatment plans remotely
+
+### Privacy requirements
+- Screen lock or PIN after patient data entry
+- No cross-patient navigation on clinic device
+
+### Out of scope for prototype
+- Real video capture (use placeholder)
+- Real backend or database
+- Real authentication system
+- Automatic expression detection
+- Quality validation (lighting, blur)
+- Patient history / analytics
+- EMR integration
