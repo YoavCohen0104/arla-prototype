@@ -61,3 +61,13 @@ All forms use `novalidate` to suppress native browser validation. Custom JS vali
 
 ### CSS design tokens
 All colors, radius, and shadow are CSS custom properties defined in `:root` in `style.css`. New pages must reference these variables rather than hardcoding values.
+
+### Page-scoped styles
+Pages with significant UI complexity (`clinic-login.html`, `expert-dashboard.html`, `treatment-plan.html`) declare a `<style>` block in `<head>` for their page-specific CSS. Do not add page-specific styles to `style.css` — only shared, reusable styles belong there.
+
+### Feedback webhook
+Completed feedback forms POST JSON to:
+```
+https://yoavcohen.app.n8n.cloud/webhook/arla-feedback
+```
+Payload fields: `rating` (int 0–5), `modified` (`"yes"` / `"no"`), `comment` (string), `timestamp` (ISO 8601). The form shows a success message regardless of webhook response so that a network failure never blocks the injector.
