@@ -74,6 +74,50 @@
       gap: 8px;
       letter-spacing: 0.04em;
     }
+
+    .role-selector {
+      display: flex;
+      border: 1.5px solid var(--color-border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      margin-bottom: 24px;
+    }
+
+    .role-selector input[type="radio"] {
+      display: none;
+    }
+
+    .role-selector label {
+      flex: 1;
+      text-align: center;
+      padding: 9px 4px;
+      font-size: 13px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      letter-spacing: 0.04em;
+      color: var(--color-text-muted);
+      cursor: pointer;
+      border-right: 1.5px solid var(--color-border);
+      transition: background 0.15s, color 0.15s;
+      user-select: none;
+    }
+
+    .role-selector label:last-of-type {
+      border-right: none;
+    }
+
+    .role-selector input[type="radio"]:checked + label {
+      background: var(--color-rose);
+      color: #fff;
+      font-weight: 500;
+    }
+
+    .role-label-heading {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--color-text-muted);
+      margin-bottom: 8px;
+    }
   </style>
 </head>
 <body>
@@ -82,6 +126,16 @@
     <h1>Clinic Login</h1>
 
     <form id="login-form" novalidate>
+
+      <p class="role-label-heading">Sign in as</p>
+      <div class="role-selector" role="group" aria-label="Select role">
+        <input type="radio" id="role-injector" name="role" value="injector" checked />
+        <label for="role-injector">Injector</label>
+        <input type="radio" id="role-assistant" name="role" value="assistant" />
+        <label for="role-assistant">Assistant</label>
+        <input type="radio" id="role-expert" name="role" value="expert" />
+        <label for="role-expert">Expert</label>
+      </div>
 
       <div class="field">
         <label for="email">Email Address</label>
@@ -188,8 +242,15 @@
 
       if (emailMsg || passwordMsg) return;
 
-      // Placeholder — replace with real auth call
-      alert('Login submitted. Connect to your auth endpoint here.');
+      const role = form.querySelector('input[name="role"]:checked').value;
+      localStorage.setItem('arla_role', role);
+
+      // Route based on role — experts go to their dashboard, everyone else to home
+      if (role === 'expert') {
+        window.location.href = 'expert-dashboard.html';
+      } else {
+        window.location.href = 'index.html';
+      }
     });
 
     const biometricBtn = document.getElementById('biometric-btn');
@@ -212,7 +273,13 @@
         // 1. Fetch a challenge from the server
         // 2. Call navigator.credentials.get({ publicKey: { challenge, rpId, userVerification: 'required', allowCredentials: [...] } })
         // 3. Send the credential response to the server for verification
-        alert('Biometric sign-in initiated. Connect to your WebAuthn endpoint here.');
+        const role = form.querySelector('input[name="role"]:checked').value;
+        localStorage.setItem('arla_role', role);
+        if (role === 'expert') {
+          window.location.href = 'expert-dashboard.html';
+        } else {
+          window.location.href = 'index.html';
+        }
       } catch (err) {
         alert('Biometric authentication failed: ' + err.message);
       }
