@@ -156,9 +156,6 @@
     }
     .ann-dot.superficial { background: var(--color-rose); }
     .ann-dot.deep        { background: #6b9ac4; }
-    .ann-dot.highlighted {
-      box-shadow: 0 0 0 5px rgba(255,255,255,0.55), 0 0 0 8px rgba(0,0,0,0.15);
-    }
 
     /* ── Injection points list (read-only) ── */
     .ann-list-section { margin-top: 20px; }
@@ -232,28 +229,6 @@
       padding: 12px 0;
     }
 
-    /* ── Expert notes box ── */
-    .notes-section { margin-top: 20px; }
-    .notes-box {
-      background: var(--color-rose-pale);
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius);
-      padding: 12px 14px;
-    }
-    .notes-box p {
-      font-size: 0.875rem;
-      color: var(--color-text);
-      line-height: 1.6;
-      margin: 0 0 6px;
-    }
-    .notes-box p:last-child { margin-bottom: 0; }
-    .notes-point-label {
-      font-size: 0.72rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      color: var(--color-text-muted);
-    }
   </style>
 </head>
 <body>
@@ -301,17 +276,12 @@
         <ol id="ann-list"></ol>
       </div>
 
-      <!-- Expert notes: consolidated note text from any dots that have notes -->
-      <div class="notes-section" id="notes-section" hidden>
-        <p class="section-heading">Expert Notes</p>
-        <div class="notes-box" id="notes-box"></div>
-      </div>
 
     </div><!-- /#plan-content -->
 
     <div class="action-row" style="margin-top: 28px;">
       <a href="case-submitted.html" class="btn btn-secondary" style="text-decoration: none;">← Back</a>
-      <a href="feedback.html" class="btn btn-primary" style="width: auto; text-decoration: none;">Provide Feedback →</a>
+      <a href="feedback.html" class="btn btn-primary" style="width: auto; text-decoration: none;">Confirm Treatment Complete →</a>
     </div>
   </div>
   </div>
@@ -348,9 +318,8 @@
         'Plan submitted ' + d.toLocaleString();
     }
 
-    // ── Mutable UI state — declared before any function that reads them ──
+    // ── Mutable UI state ──
     let activeThumbIndex = 0;
-    let highlightedDotId = null;
 
     // ── Show awaiting or plan content ──
     if (!annotation) {
@@ -360,7 +329,6 @@
       buildThumbs();
       selectThumb(0);
       renderList();
-      buildNotes();
     }
 
     // ── Thumbnails ──
@@ -388,7 +356,7 @@
         lbl.textContent = name;
         item.appendChild(lbl);
 
-        item.addEventListener('click', () => { highlightedDotId = null; selectThumb(i); });
+        item.addEventListener('click', () => selectThumb(i));
         row.appendChild(item);
       });
     }
@@ -428,8 +396,7 @@
         .forEach(dot => {
           const el = document.createElement('div');
           const depthClass = dot.depth === 'Deep' ? 'deep' : 'superficial';
-          const hlClass    = dot.id === highlightedDotId ? ' highlighted' : '';
-          el.className = `ann-dot ${depthClass}${hlClass}`;
+          el.className = `ann-dot ${depthClass}`;
           el.style.left = dot.x + '%';
           el.style.top  = dot.y + '%';
           el.textContent = dot.id;
@@ -449,9 +416,7 @@
         const li = document.createElement('li');
         li.className = 'ann-item';
 
-        // Clicking a list item jumps to that expression and highlights the dot
         li.addEventListener('click', () => {
-          highlightedDotId = dot.id;
           selectThumb(dot.expressionIndex);
           document.querySelectorAll('#ann-list .ann-item').forEach(el =>
             el.classList.toggle('active', el === li));
@@ -494,20 +459,6 @@
       });
     }
 
-    // ── Expert notes: any dot with free-text note gets an entry ──
-    function buildNotes() {
-      const noteDots = dots.filter(d => d.note);
-      if (noteDots.length === 0) return;
-
-      document.getElementById('notes-section').hidden = false;
-      const box = document.getElementById('notes-box');
-      noteDots.forEach(dot => {
-        const label = document.createElement('p');
-        label.innerHTML =
-          `<span class="notes-point-label">Point ${dot.id} · ${EXPRESSIONS[dot.expressionIndex] || ''}</span><br>${dot.note}`;
-        box.appendChild(label);
-      });
-    }
   </script>
 </body>
 </html>
