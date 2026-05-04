@@ -359,6 +359,16 @@
 
     // ── Submit click ──
     submitBtn.addEventListener('click', () => {
+      sessionStorage.setItem('arla_capture', JSON.stringify({
+        snapshots,
+        videoUrl:    reviewVideoEl.src,
+        patientName: intakeData.name      || '',
+        complaint:   intakeData.complaint || '',
+        phone:       intakeData.phone     || '',
+        dob:         intakeData.dob       || '',
+        gender:      intakeData.gender    || '',
+        submittedAt: new Date().toISOString(),
+      }));
       sessionStorage.removeItem('arla_intake');
       window.location.href = 'case-submitted.html';
     });

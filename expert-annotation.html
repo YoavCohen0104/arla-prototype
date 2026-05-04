@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Expert Annotation — Arla Aesthetics</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* ── Patient header ── */
+    .patient-header {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 4px;
+    }
+    .patient-header h1 {
+      margin: 0;
+      font-size: 1.25rem;
+    }
+    .patient-complaint {
+      color: var(--color-text-muted);
+      font-size: 0.875rem;
+      margin: 0 0 20px;
+    }
+
+    /* ── Session video ── */
+    .section-heading {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--color-text-muted);
+      margin: 0 0 8px;
+    }
+    .session-video {
+      width: 100%;
+      max-height: 260px;
+      border-radius: var(--radius);
+      background: #1a1010;
+      display: block;
+    }
+    .video-unavailable {
+      background: var(--color-rose-pale);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      color: var(--color-text-muted);
+      font-size: 0.85rem;
+      font-style: italic;
+      text-align: center;
+    }
+
+    /* ── Expression thumbnails ── */
+    .thumb-row {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 6px;
+      scroll-snap-type: x mandatory;
+    }
+    .thumb-row::-webkit-scrollbar {
+      height: 4px;
+    }
+    .thumb-row::-webkit-scrollbar-thumb {
+      background: var(--color-rose-light);
+      border-radius: 2px;
+    }
+    .thumb-item {
+      flex-shrink: 0;
+      scroll-snap-align: start;
+      cursor: pointer;
+      border-radius: 6px;
+      border: 2px solid transparent;
+      overflow: hidden;
+      width: 76px;
+      background: var(--color-rose-pale);
+      transition: border-color 0.15s;
+    }
+    .thumb-item.active {
+      border-color: var(--color-rose);
+    }
+    .thumb-item img {
+      width: 100%;
+      height: 60px;
+      object-fit: cover;
+      display: block;
+    }
+    .thumb-label {
+      display: block;
+      text-align: center;
+      font-size: 0.6rem;
+      color: var(--color-text-muted);
+      padding: 3px 2px 4px;
+      line-height: 1.2;
+    }
+    .thumb-placeholder {
+      width: 100%;
+      height: 60px;
+      background: var(--color-rose-pale);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      color: var(--color-text-muted);
+    }
+
+    /* ── Annotation panel ── */
+    .annotation-section {
+      margin-top: 20px;
+    }
+    .annotation-wrap {
+      position: relative;
+      display: block;
+      width: 100%;
+      background: #1a1010;
+      border-radius: var(--radius);
+      overflow: hidden;
+      cursor: crosshair;
+      line-height: 0;
+    }
+    #annotation-img {
+      width: 100%;
+      max-height: 480px;
+      object-fit: contain;
+      display: block;
+    }
+    .annotation-placeholder {
+      width: 100%;
+      height: 320px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #6a4040;
+      font-size: 0.85rem;
+    }
+    #dot-overlay {
+      position: absolute;
+      inset: 0;
+    }
+    .ann-dot {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font: bold 11px/1 sans-serif;
+      color: #fff;
+      cursor: pointer;
+      z-index: 10;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.35);
+      transition: box-shadow 0.15s;
+    }
+    .ann-dot:hover {
+      box-shadow: 0 0 0 4px rgba(255,255,255,0.3);
+    }
+    .ann-dot.superficial {
+      background: var(--color-rose);
+    }
+    .ann-dot.deep {
+      background: #6b9ac4;
+    }
+    .ann-hint {
+      font-size: 0.75rem;
+      color: var(--color-text-muted);
+      font-style: italic;
+      margin: 6px 0 0;
+      text-align: center;
+    }
+
+    /* ── Dot editor ── */
+    .dot-editor {
+      display: none;
+      background: var(--color-rose-pale);
+      border: 1px solid var(--color-rose-light);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-top: 12px;
+    }
+    .dot-editor.visible {
+      display: block;
+    }
+    .editor-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin: 0 0 12px;
+    }
+    .editor-field {
+      margin-bottom: 12px;
+    }
+    .editor-field label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--color-text);
+      margin-bottom: 4px;
+    }
+    .editor-field input,
+    .editor-field textarea {
+      width: 100%;
+      box-sizing: border-box;
+      border: 1px solid var(--color-border);
+      border-radius: 6px;
+      padding: 8px 10px;
+      font-size: 0.875rem;
+      color: var(--color-text);
+      background: var(--color-card);
+      font-family: inherit;
+      resize: vertical;
+    }
+    .editor-field textarea {
+      min-height: 64px;
+    }
+    .editor-field input:focus,
+    .editor-field textarea:focus {
+      outline: none;
+      border-color: var(--color-rose);
+    }
+    .depth-toggle-group {
+      display: flex;
+      gap: 8px;
+    }
+    .btn-depth {
+      flex: 1;
+      padding: 7px 0;
+      border: 1.5px solid var(--color-border);
+      border-radius: 6px;
+      background: var(--color-card);
+      color: var(--color-text-muted);
+      font-size: 0.82rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn-depth.active-superficial {
+      border-color: var(--color-rose);
+      background: var(--color-rose);
+      color: #fff;
+    }
+    .btn-depth.active-deep {
+      border-color: #6b9ac4;
+      background: #6b9ac4;
+      color: #fff;
+    }
+    .editor-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 4px;
+    }
+    .editor-actions .btn {
+      flex: 1;
+      text-align: center;
+    }
+
+    /* ── Annotation list ── */
+    .ann-list-section {
+      margin-top: 20px;
+    }
+    #ann-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .ann-item {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      background: var(--color-card);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius);
+      padding: 10px 12px;
+    }
+    .ann-item-dot {
+      flex-shrink: 0;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font: bold 11px/1 sans-serif;
+      color: #fff;
+      margin-top: 1px;
+    }
+    .ann-item-dot.superficial { background: var(--color-rose); }
+    .ann-item-dot.deep        { background: #6b9ac4; }
+    .ann-item-body {
+      flex: 1;
+      min-width: 0;
+    }
+    .ann-item-depth {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin: 0 0 2px;
+    }
+    .ann-item-depth.superficial { color: var(--color-rose); }
+    .ann-item-depth.deep        { color: #6b9ac4; }
+    .ann-item-dosage {
+      font-size: 0.82rem;
+      color: var(--color-text);
+      margin: 0 0 2px;
+    }
+    .ann-item-note {
+      font-size: 0.82rem;
+      color: var(--color-text-muted);
+      font-style: italic;
+      margin: 0;
+    }
+    .ann-empty {
+      color: var(--color-text-muted);
+      font-size: 0.85rem;
+      font-style: italic;
+      text-align: center;
+      padding: 12px 0;
+    }
+
+    /* ── Action row ── */
+    .action-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 24px;
+    }
+    .action-row .btn {
+      flex: 1;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="page-stack">
+    <nav class="proto-nav">
+      <a href="index.html">Injector View</a>
+      <a href="expert-dashboard.html">Expert View</a>
+      <a href="expert-annotation.html" class="active">Annotation</a>
+      <a href="treatment-plan.html">Treatment Plan</a>
+      <a href="feedback.html">Feedback</a>
+    </nav>
+
+    <div class="card">
+      <p class="brand">Arla Aesthetics</p>
+
+      <!-- Patient header -->
+      <div class="patient-header">
+        <h1 id="patient-name">Loading…</h1>
+      </div>
+      <p class="patient-complaint" id="chief-complaint"></p>
+
+      <!-- Session video -->
+      <p class="section-heading">Session Recording</p>
+      <div id="video-container">
+        <!-- populated by JS -->
+      </div>
+
+      <!-- Expression thumbnails -->
+      <p class="section-heading" style="margin-top: 20px;">Expressions</p>
+      <div class="thumb-row" id="thumb-row">
+        <!-- populated by JS -->
+      </div>
+
+      <!-- Annotation canvas -->
+      <div class="annotation-section">
+        <p class="section-heading">Annotation</p>
+        <div class="annotation-wrap" id="annotation-wrap">
+          <img id="annotation-img" alt="Expression for annotation" />
+          <div id="dot-overlay"></div>
+        </div>
+        <p class="ann-hint">Click on the image to place an injection point</p>
+      </div>
+
+      <!-- Dot editor -->
+      <div class="dot-editor" id="dot-editor">
+        <p class="editor-title" id="editor-title">New Injection Point</p>
+        <div class="editor-field">
+          <label>Depth</label>
+          <div class="depth-toggle-group">
+            <button class="btn-depth active-superficial" id="btn-superficial" data-depth="Superficial">Superficial</button>
+            <button class="btn-depth" id="btn-deep" data-depth="Deep">Deep</button>
+          </div>
+        </div>
+        <div class="editor-field">
+          <label for="input-dosage">Dosage</label>
+          <input type="text" id="input-dosage" placeholder="e.g. 1.5 U" autocomplete="off" />
+        </div>
+        <div class="editor-field">
+          <label for="input-note">Note</label>
+          <textarea id="input-note" placeholder="Optional clinical note…"></textarea>
+        </div>
+        <div class="editor-actions">
+          <button class="btn btn-secondary" id="btn-editor-cancel">Cancel</button>
+          <button class="btn btn-primary" id="btn-editor-save">Save Dot</button>
+        </div>
+      </div>
+
+      <!-- Annotation list -->
+      <div class="ann-list-section">
+        <p class="section-heading">Injection Points</p>
+        <ol id="ann-list">
+          <li class="ann-empty">No injection points yet. Click the image to begin.</li>
+        </ol>
+      </div>
+
+      <!-- Actions -->
+      <div class="action-row">
+        <a href="expert-dashboard.html" class="btn btn-secondary">Back</a>
+        <button class="btn btn-primary" id="btn-submit-plan">Submit Plan</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const EXPRESSIONS = [
+      'Neutral / Serious',
+      'Raised Eyebrows',
+      'Frown',
+      'Smile',
+      'Sad',
+      'Left Side (90°)',
+      'Right Side (90°)',
+    ];
+
+    // ── State ──
+    let dots = [];
+    let pendingDot = null;  // { x, y } awaiting editor save
+    let editingDotId = null;
+    let selectedDepth = 'Superficial';
+    let activeThumbIndex = 0;
+
+    // ── Load session data ──
+    const captureRaw = sessionStorage.getItem('arla_capture');
+    const capture = captureRaw ? JSON.parse(captureRaw) : null;
+    const snapshots = capture && Array.isArray(capture.snapshots) ? capture.snapshots : [];
+
+    document.getElementById('patient-name').textContent =
+      (capture && capture.patientName) ? capture.patientName : 'Patient';
+    document.getElementById('chief-complaint').textContent =
+      (capture && capture.complaint) ? capture.complaint : '';
+
+    // ── Session video ──
+    const videoContainer = document.getElementById('video-container');
+    const videoUrl = capture && capture.videoUrl;
+    if (videoUrl && !videoUrl.startsWith('blob:')) {
+      const vid = document.createElement('video');
+      vid.id = 'session-video';
+      vid.className = 'session-video';
+      vid.controls = true;
+      vid.src = videoUrl;
+      videoContainer.appendChild(vid);
+    } else if (videoUrl && videoUrl.startsWith('blob:')) {
+      // Blob URLs don't survive page navigation — attempt playback anyway,
+      // show fallback notice if the video errors out
+      const vid = document.createElement('video');
+      vid.id = 'session-video';
+      vid.className = 'session-video';
+      vid.controls = true;
+      vid.src = videoUrl;
+      vid.onerror = () => {
+        videoContainer.innerHTML = '<p class="video-unavailable">Session video unavailable in prototype mode — blob URLs do not survive page navigation.</p>';
+      };
+      videoContainer.appendChild(vid);
+    } else {
+      videoContainer.innerHTML = '<p class="video-unavailable">No session recording found.</p>';
+    }
+
+    // ── Thumbnails ──
+    const thumbRow = document.getElementById('thumb-row');
+    EXPRESSIONS.forEach((name, i) => {
+      const item = document.createElement('div');
+      item.className = 'thumb-item' + (i === 0 ? ' active' : '');
+
+      if (snapshots[i]) {
+        const img = document.createElement('img');
+        img.src = snapshots[i];
+        img.alt = name;
+        item.appendChild(img);
+      } else {
+        const ph = document.createElement('div');
+        ph.className = 'thumb-placeholder';
+        ph.textContent = String(i + 1);
+        item.appendChild(ph);
+      }
+
+      const lbl = document.createElement('span');
+      lbl.className = 'thumb-label';
+      lbl.textContent = name;
+      item.appendChild(lbl);
+
+      item.addEventListener('click', () => selectThumb(i));
+      thumbRow.appendChild(item);
+    });
+
+    function selectThumb(index) {
+      activeThumbIndex = index;
+      thumbRow.querySelectorAll('.thumb-item').forEach((el, i) => {
+        el.classList.toggle('active', i === index);
+      });
+      if (snapshots[index]) {
+        annotationImg.src = snapshots[index];
+      }
+    }
+
+    // ── Annotation image ──
+    const annotationImg = document.getElementById('annotation-img');
+    const dotOverlay    = document.getElementById('dot-overlay');
+
+    if (snapshots[0]) {
+      annotationImg.src = snapshots[0];
+    } else {
+      const wrap = document.getElementById('annotation-wrap');
+      wrap.innerHTML = '<div class="annotation-placeholder">No image — complete facial capture first</div>';
+    }
+
+    // ── Click to place dot ──
+    dotOverlay.addEventListener('click', (e) => {
+      // Ignore click if editor is open for a new dot already
+      if (pendingDot && editingDotId === null) return;
+
+      const rect = dotOverlay.getBoundingClientRect();
+      const x = ((e.clientX - rect.left) / rect.width)  * 100;
+      const y = ((e.clientY - rect.top)  / rect.height) * 100;
+
+      pendingDot = { x, y };
+      editingDotId = null;
+      openEditor(null);
+    });
+
+    // ── Dot editor ──
+    const dotEditor     = document.getElementById('dot-editor');
+    const editorTitle   = document.getElementById('editor-title');
+    const btnSuperficial = document.getElementById('btn-superficial');
+    const btnDeep        = document.getElementById('btn-deep');
+    const inputDosage   = document.getElementById('input-dosage');
+    const inputNote     = document.getElementById('input-note');
+
+    function openEditor(dot) {
+      if (dot) {
+        // Editing an existing dot
+        editorTitle.textContent = `Edit Point ${dot.id}`;
+        setEditorDepth(dot.depth);
+        inputDosage.value = dot.dosage;
+        inputNote.value   = dot.note;
+        editingDotId = dot.id;
+        pendingDot = null;
+      } else {
+        // New dot
+        editorTitle.textContent = 'New Injection Point';
+        setEditorDepth('Superficial');
+        inputDosage.value = '';
+        inputNote.value   = '';
+      }
+      dotEditor.classList.add('visible');
+      inputDosage.focus();
+    }
+
+    function closeEditor() {
+      dotEditor.classList.remove('visible');
+      pendingDot = null;
+      editingDotId = null;
+    }
+
+    function setEditorDepth(depth) {
+      selectedDepth = depth;
+      btnSuperficial.className = 'btn-depth' + (depth === 'Superficial' ? ' active-superficial' : '');
+      btnDeep.className        = 'btn-depth' + (depth === 'Deep'        ? ' active-deep'        : '');
+    }
+
+    btnSuperficial.addEventListener('click', () => setEditorDepth('Superficial'));
+    btnDeep.addEventListener('click',        () => setEditorDepth('Deep'));
+
+    document.getElementById('btn-editor-cancel').addEventListener('click', closeEditor);
+
+    document.getElementById('btn-editor-save').addEventListener('click', () => {
+      if (editingDotId !== null) {
+        // Update existing dot
+        const dot = dots.find(d => d.id === editingDotId);
+        if (dot) {
+          dot.depth  = selectedDepth;
+          dot.dosage = inputDosage.value.trim();
+          dot.note   = inputNote.value.trim();
+        }
+      } else if (pendingDot) {
+        // Save new dot
+        const dot = {
+          id:     dots.length + 1,
+          x:      pendingDot.x,
+          y:      pendingDot.y,
+          depth:  selectedDepth,
+          dosage: inputDosage.value.trim(),
+          note:   inputNote.value.trim(),
+        };
+        dots.push(dot);
+      }
+      closeEditor();
+      renderDots();
+      renderList();
+    });
+
+    // ── Render dots on overlay ──
+    function renderDots() {
+      dotOverlay.innerHTML = '';
+      dots.forEach(dot => {
+        const el = document.createElement('div');
+        el.className = `ann-dot ${dot.depth === 'Deep' ? 'deep' : 'superficial'}`;
+        el.style.left = dot.x + '%';
+        el.style.top  = dot.y + '%';
+        el.textContent = dot.id;
+        el.title = `Point ${dot.id}: ${dot.depth}${dot.dosage ? ' · ' + dot.dosage : ''}`;
+        el.addEventListener('click', (e) => {
+          e.stopPropagation();
+          openEditor(dot);
+        });
+        dotOverlay.appendChild(el);
+      });
+    }
+
+    // ── Render annotation list ──
+    function renderList() {
+      const list = document.getElementById('ann-list');
+      if (dots.length === 0) {
+        list.innerHTML = '<li class="ann-empty">No injection points yet. Click the image to begin.</li>';
+        return;
+      }
+      list.innerHTML = '';
+      dots.forEach(dot => {
+        const li = document.createElement('li');
+        li.className = 'ann-item';
+
+        const dotEl = document.createElement('div');
+        dotEl.className = `ann-item-dot ${dot.depth === 'Deep' ? 'deep' : 'superficial'}`;
+        dotEl.textContent = dot.id;
+
+        const body = document.createElement('div');
+        body.className = 'ann-item-body';
+
+        const depthEl = document.createElement('p');
+        depthEl.className = `ann-item-depth ${dot.depth === 'Deep' ? 'deep' : 'superficial'}`;
+        depthEl.textContent = dot.depth;
+
+        body.appendChild(depthEl);
+
+        if (dot.dosage) {
+          const dosageEl = document.createElement('p');
+          dosageEl.className = 'ann-item-dosage';
+          dosageEl.textContent = dot.dosage;
+          body.appendChild(dosageEl);
+        }
+
+        if (dot.note) {
+          const noteEl = document.createElement('p');
+          noteEl.className = 'ann-item-note';
+          noteEl.textContent = `"${dot.note}"`;
+          body.appendChild(noteEl);
+        }
+
+        li.appendChild(dotEl);
+        li.appendChild(body);
+        list.appendChild(li);
+      });
+    }
+
+    // ── Submit plan ──
+    document.getElementById('btn-submit-plan').addEventListener('click', () => {
+      sessionStorage.setItem('arla_annotation', JSON.stringify({
+        dots,
+        submittedAt: new Date().toISOString(),
+      }));
+      window.location.href = 'treatment-plan.html';
+    });
+  </script>
+</body>
+</html>

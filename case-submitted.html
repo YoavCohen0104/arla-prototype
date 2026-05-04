@@ -5,71 +5,305 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Case Submitted — Arla Aesthetics</title>
   <link rel="stylesheet" href="style.css" />
+  <style>
+    /* ── Amber pending badge ── */
+    .status-badge-pending {
+      display: inline-block;
+      background: #fef3c7;
+      color: #92400e;
+      border: 1px solid #fcd34d;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      padding: 4px 14px;
+      margin-bottom: 18px;
+    }
+
+    /* ── Section label ── */
+    .section-label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--color-text-muted);
+      margin: 22px 0 8px;
+    }
+
+    /* ── Expert card ── */
+    .expert-card {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      background: var(--color-rose-pale);
+      border: 1px solid var(--color-rose-light);
+      border-left: 3px solid var(--color-rose);
+      border-radius: var(--radius);
+      padding: 14px;
+      margin-bottom: 0;
+    }
+    .expert-avatar {
+      flex-shrink: 0;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--color-rose);
+      color: #fff;
+      font-size: 0.8rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .expert-name {
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: var(--color-text);
+      margin: 0 0 1px;
+    }
+    .expert-title {
+      font-size: 0.78rem;
+      color: var(--color-text-muted);
+      margin: 0 0 6px;
+    }
+    .expert-message {
+      font-size: 0.82rem;
+      color: var(--color-text);
+      font-style: italic;
+      margin: 0 0 8px;
+    }
+    .response-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: #166534;
+      background: #dcfce7;
+      border: 1px solid #86efac;
+      border-radius: 12px;
+      padding: 2px 10px;
+    }
+    .response-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #16a34a;
+      animation: pulse 1.8s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.35; }
+    }
+
+    /* ── Thumbnail grid ── */
+    .thumb-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+    }
+    .thumb-cell {
+      border-radius: 6px;
+      overflow: hidden;
+      background: var(--color-rose-pale);
+      border: 1px solid var(--color-border);
+    }
+    .thumb-cell img {
+      width: 100%;
+      aspect-ratio: 4/3;
+      object-fit: cover;
+      display: block;
+    }
+    .thumb-cell-empty {
+      width: 100%;
+      aspect-ratio: 4/3;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.65rem;
+      color: var(--color-text-muted);
+    }
+    .thumb-expr-label {
+      font-size: 0.58rem;
+      color: var(--color-text-muted);
+      text-align: center;
+      padding: 3px 2px 4px;
+      line-height: 1.2;
+    }
+    .video-note {
+      font-size: 0.78rem;
+      color: var(--color-text-muted);
+      font-style: italic;
+      text-align: center;
+      margin: 8px 0 0;
+    }
+
+    /* ── Case details ── */
+    .detail-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .detail-item {
+      background: var(--color-rose-pale);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius);
+      padding: 10px 12px;
+    }
+    .detail-label {
+      font-size: 0.68rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--color-text-muted);
+      margin: 0 0 3px;
+    }
+    .detail-value {
+      font-size: 0.88rem;
+      color: var(--color-text);
+      margin: 0;
+    }
+
+    /* ── Bottom ── */
+    .submitted-at {
+      font-size: 0.75rem;
+      color: var(--color-text-muted);
+      text-align: center;
+      margin: 22px 0 6px;
+    }
+    .back-link {
+      display: block;
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--color-rose);
+      text-decoration: none;
+      padding: 6px 0 4px;
+    }
+    .back-link:hover {
+      text-decoration: underline;
+    }
+  </style>
 </head>
 <body>
   <div class="page-stack">
-  <nav class="proto-nav">
-    <a href="index.html">Injector View</a>
-    <a href="expert-dashboard.html">Expert View</a>
-    <a href="case-submitted.html" class="active">Case Submitted</a>
-    <a href="treatment-plan.html">Treatment Plan</a>
-    <a href="feedback.html">Feedback</a>
-  </nav>
-  <div class="card">
-    <p class="brand">Arla Aesthetics</p>
-    <h1>Case Submitted</h1>
-    <div class="step-indicator">
-      <span class="step-label">Step 1 of 3</span>
-      <div class="step-bar"><div class="step-bar-fill" style="width: 33%;"></div></div>
-    </div>
-    <span class="status-badge status-pending">Pending Expert Review</span>
+    <nav class="proto-nav">
+      <a href="index.html">Injector View</a>
+      <a href="expert-dashboard.html">Expert View</a>
+      <a href="expert-annotation.html">Annotation</a>
+      <a href="case-submitted.html" class="active">Case Submitted</a>
+      <a href="treatment-plan.html">Treatment Plan</a>
+      <a href="feedback.html">Feedback</a>
+    </nav>
+    <div class="card">
+      <p class="brand">Arla Aesthetics</p>
 
-    <!-- Expert assignment card — confirms a named expert has received and is reviewing the case -->
-    <div class="expert-card">
-      <div class="expert-avatar">DM</div>
-      <div>
-        <p class="expert-name">Dr. Diana Martinez</p>
-        <p class="expert-title">Senior Aesthetic Expert &middot; 8 yrs</p>
-        <p class="expert-message">&ldquo;I&rsquo;ve received your case and will have a full treatment plan ready within 5 minutes.&rdquo;</p>
-      </div>
-    </div>
+      <!-- Patient identity -->
+      <h1 id="cs-patient-name" style="margin-bottom: 4px;">—</h1>
+      <p id="cs-complaint" style="color: var(--color-text-muted); font-size: 0.9rem; margin: 0 0 18px;"></p>
 
-    <!-- Pre-annotation clinical scan — no injection markers, awaiting expert review -->
-    <div style="max-width: 320px; margin: 16px auto; border-radius: 12px; overflow: hidden; border: 1px solid var(--color-border); position: relative;">
-      <img
-        src="https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=400"
-        alt="Submitted clinical scan — pre-annotation, pending expert review"
-        style="width: 100%; display: block;"
-      />
-      <div style="position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.45); color: #fff; font-size: 11px; padding: 3px 10px; border-radius: 20px; white-space: nowrap;">Captured scan · Awaiting annotation</div>
-    </div>
+      <!-- Status -->
+      <span class="status-badge-pending">Pending Expert Review</span>
 
-    <div class="confirm-summary">
-      <div class="confirm-row">
-        <span class="confirm-label">Case ID</span>
-        <span class="confirm-value">ARL-2026-0042</span>
+      <!-- Expert assigned -->
+      <p class="section-label">Expert Assigned</p>
+      <div class="expert-card">
+        <div class="expert-avatar">DM</div>
+        <div>
+          <p class="expert-name">Dr. Diana Martinez</p>
+          <p class="expert-title">Senior Aesthetic Expert &middot; 8 yrs</p>
+          <p class="expert-message">&ldquo;I&rsquo;ve received your case and will have a full treatment plan ready shortly.&rdquo;</p>
+          <span class="response-indicator">
+            <span class="response-dot"></span>
+            Responds within 5 min
+          </span>
+        </div>
       </div>
-      <div class="confirm-row">
-        <span class="confirm-label">Patient</span>
-        <span class="confirm-value">Sarah Chen</span>
+
+      <!-- Submitted media -->
+      <p class="section-label">Submitted for Expert Review</p>
+      <div class="thumb-grid" id="cs-thumb-grid"></div>
+      <p class="video-note">Full session video submitted with case</p>
+
+      <!-- Case details -->
+      <p class="section-label">Case Details</p>
+      <div class="detail-grid">
+        <div class="detail-item">
+          <p class="detail-label">Phone</p>
+          <p class="detail-value" id="cs-phone">—</p>
+        </div>
+        <div class="detail-item">
+          <p class="detail-label">Date of Birth</p>
+          <p class="detail-value" id="cs-dob">—</p>
+        </div>
+        <div class="detail-item">
+          <p class="detail-label">Gender</p>
+          <p class="detail-value" id="cs-gender">—</p>
+        </div>
+        <div class="detail-item">
+          <p class="detail-label">Status</p>
+          <p class="detail-value">In Review</p>
+        </div>
       </div>
-      <div class="confirm-row">
-        <span class="confirm-label">Date of Birth</span>
-        <span class="confirm-value">1988-03-14</span>
-      </div>
-      <div class="confirm-row">
-        <span class="confirm-label">Submitted</span>
-        <span class="confirm-value">April 27, 2026</span>
-      </div>
-      <div class="confirm-row complaint-row">
-        <span class="confirm-label">Chief Complaint</span>
-        <span class="confirm-value">Volume loss in cheeks and nasolabial folds</span>
-      </div>
-    </div>
-    <div class="action-row">
-      <a href="treatment-plan.html" class="btn btn-primary" style="width: auto; text-decoration: none;">View Treatment Plan →</a>
+
+      <!-- Footer -->
+      <p class="submitted-at" id="cs-submitted-at"></p>
+      <a href="index.html" class="back-link">Back to Home</a>
     </div>
   </div>
-  </div>
+
+  <script>
+    const EXPRESSIONS = ['Neutral','Eyebrows','Frown','Smile','Sad','Left','Right'];
+
+    const raw = sessionStorage.getItem('arla_capture');
+    const c = raw ? JSON.parse(raw) : null;
+
+    // Patient identity
+    document.getElementById('cs-patient-name').textContent =
+      (c && c.patientName) ? c.patientName : 'Patient';
+    document.getElementById('cs-complaint').textContent =
+      (c && c.complaint) ? c.complaint : '';
+
+    // Case details
+    document.getElementById('cs-phone').textContent =
+      (c && c.phone) ? c.phone : '—';
+    document.getElementById('cs-dob').textContent =
+      (c && c.dob) ? c.dob : '—';
+    document.getElementById('cs-gender').textContent =
+      (c && c.gender) ? c.gender : '—';
+
+    // Submission timestamp
+    if (c && c.submittedAt) {
+      const d = new Date(c.submittedAt);
+      document.getElementById('cs-submitted-at').textContent =
+        'Submitted ' + d.toLocaleString(undefined, {
+          month: 'long', day: 'numeric', year: 'numeric',
+          hour: 'numeric', minute: '2-digit',
+        });
+    }
+
+    // Expression thumbnails
+    const grid = document.getElementById('cs-thumb-grid');
+    const snaps = (c && Array.isArray(c.snapshots)) ? c.snapshots : [];
+    EXPRESSIONS.forEach((name, i) => {
+      const cell = document.createElement('div');
+      cell.className = 'thumb-cell';
+      if (snaps[i]) {
+        const img = document.createElement('img');
+        img.src = snaps[i];
+        img.alt = name;
+        cell.appendChild(img);
+      } else {
+        const ph = document.createElement('div');
+        ph.className = 'thumb-cell-empty';
+        ph.textContent = String(i + 1);
+        cell.appendChild(ph);
+      }
+      const lbl = document.createElement('div');
+      lbl.className = 'thumb-expr-label';
+      lbl.textContent = name;
+      cell.appendChild(lbl);
+      grid.appendChild(cell);
+    });
+  </script>
 </body>
 </html>
