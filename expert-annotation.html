@@ -113,16 +113,18 @@
       position: relative;
       display: block;
       width: 100%;
+      aspect-ratio: 3 / 4;
+      max-height: 480px;
       background: #1a1010;
       border-radius: var(--radius);
       overflow: hidden;
       cursor: crosshair;
-      line-height: 0;
     }
     #annotation-img {
       width: 100%;
-      max-height: 480px;
-      object-fit: contain;
+      height: 100%;
+      object-fit: cover;
+      object-position: center top;
       display: block;
     }
     .annotation-placeholder {
@@ -141,13 +143,13 @@
     .ann-dot {
       position: absolute;
       transform: translate(-50%, -50%);
-      width: 26px;
-      height: 26px;
+      width: 16px;
+      height: 16px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      font: bold 11px/1 sans-serif;
+      font: bold 9px/1 sans-serif;
       color: #fff;
       cursor: pointer;
       z-index: 10;
@@ -439,12 +441,19 @@
     // ── Load session data ──
     const captureRaw = sessionStorage.getItem('arla_capture');
     const capture = captureRaw ? JSON.parse(captureRaw) : null;
-    const snapshots = capture && Array.isArray(capture.snapshots) ? capture.snapshots : [];
+    console.log('arla_capture:', capture);
 
-    document.getElementById('patient-name').textContent =
-      (capture && capture.patientName) ? capture.patientName : 'Patient';
-    document.getElementById('chief-complaint').textContent =
-      (capture && capture.complaint) ? capture.complaint : '';
+    if (!capture) {
+      document.getElementById('patient-name').textContent = 'Error: No session data';
+      document.getElementById('chief-complaint').textContent =
+        'arla_capture not found in sessionStorage. Please complete facial capture first.';
+      document.getElementById('chief-complaint').style.color = 'var(--color-rose)';
+    } else {
+      document.getElementById('patient-name').textContent = capture.patientName || 'Patient';
+      document.getElementById('chief-complaint').textContent = capture.complaint || '';
+    }
+
+    const snapshots = capture && Array.isArray(capture.snapshots) ? capture.snapshots : [];
 
     // ── Session video ──
     const videoContainer = document.getElementById('video-container');
