@@ -327,6 +327,23 @@
       padding: 12px 0;
     }
 
+    /* ── Annotation list extras ── */
+    .ann-item {
+      cursor: pointer;
+    }
+    .ann-item:hover {
+      border-color: var(--color-rose-light);
+    }
+    .ann-item-expr {
+      font-size: 0.72rem;
+      color: var(--color-text-muted);
+      margin: 0 0 2px;
+      font-style: italic;
+    }
+    .ann-dot.highlighted {
+      box-shadow: 0 0 0 5px rgba(255,255,255,0.55), 0 0 0 8px rgba(0,0,0,0.15);
+    }
+
     /* ── Action row ── */
     .action-row {
       display: flex;
@@ -437,6 +454,7 @@
     let editingDotId = null;
     let selectedDepth = 'Superficial';
     let activeThumbIndex = 0;
+    let highlightedDotId = null;
 
     // ── Load session data ──
     const captureRaw = sessionStorage.getItem('arla_capture');
@@ -508,14 +526,16 @@
       thumbRow.appendChild(item);
     });
 
-    function selectThumb(index) {
+    function selectThumb(index, keepHighlight) {
       activeThumbIndex = index;
+      if (!keepHighlight) highlightedDotId = null;
       thumbRow.querySelectorAll('.thumb-item').forEach((el, i) => {
         el.classList.toggle('active', i === index);
       });
       if (snapshots[index]) {
         annotationImg.src = snapshots[index];
       }
+      renderDots();
     }
 
     // ── Annotation image ──
@@ -598,14 +618,15 @@
           dot.note   = inputNote.value.trim();
         }
       } else if (pendingDot) {
-        // Save new dot
+        // Save new dot — record which expression it belongs to
         const dot = {
-          id:     dots.length + 1,
-          x:      pendingDot.x,
-          y:      pendingDot.y,
-          depth:  selectedDepth,
-          dosage: inputDosage.value.trim(),
-          note:   inputNote.value.trim(),
+          id:              dots.length + 1,
+          x:               pendingDot.x,
+          y:               pendingDot.y,
+          depth:           selectedDepth,
+          dosage:          inputDosage.value.trim(),
+          note:            inputNote.value.trim(),
+          expressionIndex: activeThumbIndex,
         };
         dots.push(dot);
       }
@@ -614,25 +635,29 @@
       renderList();
     });
 
-    // ── Render dots on overlay ──
+    // ── Render dots on overlay — only those belonging to the active expression ──
     function renderDots() {
       dotOverlay.innerHTML = '';
-      dots.forEach(dot => {
-        const el = document.createElement('div');
-        el.className = `ann-dot ${dot.depth === 'Deep' ? 'deep' : 'superficial'}`;
-        el.style.left = dot.x + '%';
-        el.style.top  = dot.y + '%';
-        el.textContent = dot.id;
-        el.title = `Point ${dot.id}: ${dot.depth}${dot.dosage ? ' · ' + dot.dosage : ''}`;
-        el.addEventListener('click', (e) => {
-          e.stopPropagation();
-          openEditor(dot);
+      dots
+        .filter(dot => dot.expressionIndex === activeThumbIndex)
+        .forEach(dot => {
+          const el = document.createElement('div');
+          const depthClass = dot.depth === 'Deep' ? 'deep' : 'superficial';
+          const hlClass     = dot.id === highlightedDotId ? ' highlighted' : '';
+          el.className = `ann-dot ${depthClass}${hlClass}`;
+          el.style.left = dot.x + '%';
+          el.style.top  = dot.y + '%';
+          el.textContent = dot.id;
+          el.title = `Point ${dot.id}: ${dot.depth}${dot.dosage ? ' · ' + dot.dosage : ''}`;
+          el.addEventListener('click', (e) => {
+            e.stopPropagation();
+            openEditor(dot);
+          });
+          dotOverlay.appendChild(el);
         });
-        dotOverlay.appendChild(el);
-      });
     }
 
-    // ── Render annotation list ──
+    // ── Render annotation list — all dots across all expressions ──
     function renderList() {
       const list = document.getElementById('ann-list');
       if (dots.length === 0) {
@@ -643,6 +668,11 @@
       dots.forEach(dot => {
         const li = document.createElement('li');
         li.className = 'ann-item';
+        li.addEventListener('click', () => {
+          // Switch to the expression this dot belongs to and highlight it
+          highlightedDotId = dot.id;
+          selectThumb(dot.expressionIndex, true);
+        });
 
         const dotEl = document.createElement('div');
         dotEl.className = `ann-item-dot ${dot.depth === 'Deep' ? 'deep' : 'superficial'}`;
@@ -654,8 +684,13 @@
         const depthEl = document.createElement('p');
         depthEl.className = `ann-item-depth ${dot.depth === 'Deep' ? 'deep' : 'superficial'}`;
         depthEl.textContent = dot.depth;
-
         body.appendChild(depthEl);
+
+        // Show which expression this dot was placed on
+        const exprEl = document.createElement('p');
+        exprEl.className = 'ann-item-expr';
+        exprEl.textContent = EXPRESSIONS[dot.expressionIndex];
+        body.appendChild(exprEl);
 
         if (dot.dosage) {
           const dosageEl = document.createElement('p');
