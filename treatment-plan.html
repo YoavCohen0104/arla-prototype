@@ -6,7 +6,7 @@
   <title>Treatment Plan — Arla Aesthetics</title>
   <link rel="stylesheet" href="style.css" />
   <style>
-    /* ── Compact header for in-procedure use ── */
+    /* ── Compact header ── */
     .plan-header {
       display: flex;
       align-items: baseline;
@@ -24,225 +24,235 @@
       color: var(--color-text-muted);
       flex-shrink: 0;
     }
+    .plan-complaint {
+      font-size: 14px;
+      color: var(--color-text-muted);
+      margin: 0 0 4px;
+    }
     .plan-attribution {
       font-size: 13px;
       color: var(--color-text-muted);
       margin-bottom: 20px;
     }
 
-    /* ── Collapsible assessment ── */
-    .assessment-toggle {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 13px;
+    /* ── Section headings ── */
+    .section-heading {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
       color: var(--color-text-muted);
+      margin: 0 0 8px;
+    }
+
+    /* ── Awaiting state ── */
+    .awaiting-box {
       background: var(--color-rose-pale);
       border: 1px solid var(--color-border);
-      border-radius: 6px;
-      padding: 8px 12px;
-      cursor: pointer;
-      width: 100%;
-      text-align: left;
-      margin-bottom: 20px;
-      transition: background 0.15s;
+      border-radius: var(--radius);
+      padding: 32px 16px;
+      text-align: center;
+      color: var(--color-text-muted);
+      font-size: 0.95rem;
+      margin: 8px 0 24px;
     }
-    .assessment-toggle:hover {
-      background: var(--color-rose-light);
-    }
-    .assessment-toggle .chevron {
-      margin-left: auto;
-      font-size: 11px;
-      transition: transform 0.2s;
-    }
-    .assessment-toggle[aria-expanded="true"] .chevron {
-      transform: rotate(180deg);
-    }
-    .assessment-body {
-      font-size: 14px;
-      color: var(--color-text);
-      line-height: 1.6;
-      border: 1px solid var(--color-border);
-      border-radius: 0 0 6px 6px;
-      padding: 12px 14px;
-      margin-top: -20px;
-      margin-bottom: 20px;
-      background: #fff;
-    }
-    .assessment-body[hidden] { display: none; }
 
-    /* ── Reference photo ── */
-    .photo-wrap {
-      position: relative;
-      max-width: 260px;
-      margin: 0 auto 24px;
-      border-radius: 10px;
-      overflow: hidden;
-      border: 1px solid var(--color-border);
+    /* ── Expression thumbnails ── */
+    .thumb-row {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 6px;
+      scroll-snap-type: x mandatory;
+      margin-bottom: 16px;
     }
-    .photo-wrap img {
+    .thumb-row::-webkit-scrollbar { height: 4px; }
+    .thumb-row::-webkit-scrollbar-thumb {
+      background: var(--color-rose-light);
+      border-radius: 2px;
+    }
+    .thumb-item {
+      flex-shrink: 0;
+      scroll-snap-align: start;
+      cursor: pointer;
+      border-radius: 6px;
+      border: 2px solid transparent;
+      overflow: hidden;
+      width: 76px;
+      background: var(--color-rose-pale);
+      transition: border-color 0.15s;
+    }
+    .thumb-item.active { border-color: var(--color-rose); }
+    .thumb-item img {
       width: 100%;
+      height: 60px;
+      object-fit: cover;
       display: block;
     }
-    .injection-marker {
-      position: absolute;
-      width: 26px;
-      height: 26px;
-      border-radius: 50%;
-      background: rgba(181, 115, 122, 0.9);
-      border: 2px solid #fff;
+    .thumb-label {
+      display: block;
+      text-align: center;
+      font-size: 0.6rem;
+      color: var(--color-text-muted);
+      padding: 3px 2px 4px;
+      line-height: 1.2;
+    }
+    .thumb-placeholder {
+      width: 100%;
+      height: 60px;
+      background: var(--color-rose-pale);
       display: flex;
       align-items: center;
       justify-content: center;
-      color: #fff;
-      font-weight: 700;
-      font-size: 12px;
-      transform: translate(-50%, -50%);
-      cursor: pointer;
-      transition: box-shadow 0.15s, background 0.15s;
-    }
-    .injection-marker.highlight,
-    .injection-marker.done-highlight {
-      background: #b5737a;
-      box-shadow: 0 0 0 5px rgba(181, 115, 122, 0.35);
-    }
-    .injection-marker.done {
-      background: #7ab57a;
-      border-color: #fff;
+      font-size: 0.7rem;
+      color: var(--color-text-muted);
     }
 
-    /* ── Step cards ── */
-    .steps-label {
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: var(--color-text-muted);
-      margin-bottom: 10px;
-    }
-    .step-card {
-      display: grid;
-      grid-template-columns: 40px 1fr auto;
-      gap: 0 12px;
-      align-items: start;
-      border: 1.5px solid var(--color-border);
-      border-radius: 10px;
-      padding: 14px 14px 14px 12px;
-      margin-bottom: 10px;
-      cursor: pointer;
-      transition: border-color 0.15s, background 0.15s;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .step-card:hover {
-      border-color: var(--color-rose-light);
-    }
-    .step-card.highlight {
-      border-color: var(--color-rose);
-      background: var(--color-rose-pale);
-    }
-    .step-card.done {
-      opacity: 0.55;
-      border-color: var(--color-border);
-      background: #f9f9f9;
-    }
-    .step-number {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background: var(--color-rose-pale);
-      border: 1.5px solid var(--color-rose-light);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 17px;
-      font-weight: 700;
-      color: var(--color-rose);
-      flex-shrink: 0;
-    }
-    .step-card.done .step-number {
-      background: #e8f4e8;
-      border-color: #b5d4b5;
-      color: #5a9a5a;
-    }
-    .step-body { min-width: 0; }
-    .step-site {
-      font-size: 15px;
-      font-weight: 600;
-      color: var(--color-text);
-      margin-bottom: 5px;
-    }
-    .step-badges {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 5px;
+    /* ── Annotated image (read-only) ── */
+    .annotation-wrap {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 3 / 4;
+      max-height: 480px;
+      background: var(--color-background-secondary, #f5f0f0);
+      border-radius: var(--radius);
+      overflow: hidden;
       margin-bottom: 6px;
     }
-    .badge {
-      font-size: 12px;
-      font-weight: 600;
-      padding: 2px 8px;
-      border-radius: 20px;
-      background: var(--color-rose-pale);
-      color: var(--color-rose);
-      border: 1px solid var(--color-rose-light);
+    #annotation-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center top;
+      display: block;
     }
-    .badge.depth {
-      background: #f0f0f4;
-      color: #666;
-      border-color: #d8d8e0;
-    }
-    .step-note {
-      font-size: 13px;
-      color: var(--color-text-muted);
-      line-height: 1.5;
-    }
-    /* Checkmark column */
-    .step-check {
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      border: 2px solid var(--color-border);
+    .img-unavailable {
+      width: 100%;
+      height: 100%;
       display: flex;
       align-items: center;
       justify-content: center;
-      color: transparent;
-      font-size: 14px;
-      flex-shrink: 0;
-      margin-top: 4px;
-      transition: border-color 0.15s, background 0.15s, color 0.15s;
+      color: #6a4040;
+      font-size: 0.85rem;
     }
-    .step-card.done .step-check {
-      border-color: #7ab57a;
-      background: #7ab57a;
-      color: #fff;
+    #dot-overlay {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
     }
-
-    /* ── Progress strip ── */
-    .progress-strip {
+    .ann-dot {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
       display: flex;
       align-items: center;
-      gap: 8px;
-      margin-bottom: 20px;
-      font-size: 13px;
-      color: var(--color-text-muted);
+      justify-content: center;
+      font: bold 10px/1 sans-serif;
+      color: #fff;
+      border: 2px solid rgba(255,255,255,0.8);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.35);
     }
-    .progress-dots {
+    .ann-dot.superficial { background: var(--color-rose); }
+    .ann-dot.deep        { background: #6b9ac4; }
+    .ann-dot.highlighted {
+      box-shadow: 0 0 0 5px rgba(255,255,255,0.55), 0 0 0 8px rgba(0,0,0,0.15);
+    }
+
+    /* ── Injection points list (read-only) ── */
+    .ann-list-section { margin-top: 20px; }
+    #ann-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
       display: flex;
-      gap: 5px;
+      flex-direction: column;
+      gap: 8px;
     }
-    .progress-dot {
-      width: 10px;
-      height: 10px;
+    .ann-item {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      background: var(--color-card);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius);
+      padding: 10px 12px;
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+    .ann-item:hover { border-color: var(--color-rose-light); }
+    .ann-item.active { border-color: var(--color-rose); background: var(--color-rose-pale); }
+    .ann-item-dot {
+      flex-shrink: 0;
+      width: 24px;
+      height: 24px;
       border-radius: 50%;
-      border: 1.5px solid var(--color-border);
-      background: #fff;
-      transition: background 0.2s, border-color 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font: bold 11px/1 sans-serif;
+      color: #fff;
+      margin-top: 1px;
     }
-    .progress-dot.done {
-      background: #7ab57a;
-      border-color: #7ab57a;
+    .ann-item-dot.superficial { background: var(--color-rose); }
+    .ann-item-dot.deep        { background: #6b9ac4; }
+    .ann-item-body { flex: 1; min-width: 0; }
+    .ann-item-depth {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin: 0 0 2px;
     }
-    .progress-count {
-      margin-left: auto;
+    .ann-item-depth.superficial { color: var(--color-rose); }
+    .ann-item-depth.deep        { color: #6b9ac4; }
+    .ann-item-expr {
+      font-size: 0.72rem;
+      color: var(--color-text-muted);
+      margin: 0 0 2px;
+      font-style: italic;
+    }
+    .ann-item-dosage {
+      font-size: 0.82rem;
+      color: var(--color-text);
+      margin: 0 0 2px;
+    }
+    .ann-item-note {
+      font-size: 0.82rem;
+      color: var(--color-text-muted);
+      font-style: italic;
+      margin: 0;
+    }
+    .ann-empty {
+      color: var(--color-text-muted);
+      font-size: 0.85rem;
+      font-style: italic;
+      text-align: center;
+      padding: 12px 0;
+    }
+
+    /* ── Expert notes box ── */
+    .notes-section { margin-top: 20px; }
+    .notes-box {
+      background: var(--color-rose-pale);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius);
+      padding: 12px 14px;
+    }
+    .notes-box p {
+      font-size: 0.875rem;
+      color: var(--color-text);
+      line-height: 1.6;
+      margin: 0 0 6px;
+    }
+    .notes-box p:last-child { margin-bottom: 0; }
+    .notes-point-label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--color-text-muted);
     }
   </style>
 </head>
@@ -260,105 +270,44 @@
     <p class="brand">Arla Aesthetics</p>
 
     <div class="plan-header">
-      <span class="plan-patient">Sarah Chen</span>
-      <span class="plan-id">ARL-2026-0042</span>
+      <span class="plan-patient" id="patient-name">—</span>
+      <span class="plan-id" id="plan-id"></span>
     </div>
-    <p class="plan-attribution">Plan by Dr. Amara Osei · April 27, 2026</p>
+    <p class="plan-complaint" id="chief-complaint"></p>
+    <p class="plan-attribution" id="plan-attribution"></p>
 
-    <!-- Assessment collapsed by default — read before procedure, not during -->
-    <button class="assessment-toggle" aria-expanded="false" aria-controls="assessment-body">
-      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-        <circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5"/>
-        <path d="M8 5v4M8 11v.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-      </svg>
-      Assessment &amp; notes
-      <span class="chevron">▼</span>
-    </button>
-    <div id="assessment-body" class="assessment-body" hidden>
-      Patient presents with moderate dynamic forehead lines (frontalis activity), bilateral
-      periorbital rhytids at the lateral canthi (crow's feet), and mild vermillion border
-      definition loss. No prior neurotoxin or filler history reported. Skin laxity is mild.
-      Recommend addressing dynamic lines with conservative Botox dosing and restoring lip border
-      definition with minimal filler volume. Reassess in 2 weeks for neurotoxin effect.
+    <!-- Shown when no annotation data available -->
+    <div class="awaiting-box" id="awaiting-box" hidden>
+      Awaiting expert treatment plan
     </div>
 
-    <!-- Compact reference photo with numbered markers -->
-    <div class="photo-wrap">
-      <img
-        src="https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=400"
-        alt="Pre-treatment clinical documentation photo"
-      />
-      <div class="injection-marker" data-point="1" style="left: 50%; top: 36%;">1</div>
-      <div class="injection-marker" data-point="2" style="left: 28%; top: 46%;">2</div>
-      <div class="injection-marker" data-point="3" style="left: 72%; top: 46%;">3</div>
-      <div class="injection-marker" data-point="4" style="left: 50%; top: 65%;">4</div>
-    </div>
+    <!-- Plan content — populated from sessionStorage -->
+    <div id="plan-content" hidden>
 
-    <!-- Progress indicator -->
-    <div class="progress-strip">
-      <div class="progress-dots" id="progress-dots">
-        <div class="progress-dot" data-dot="1"></div>
-        <div class="progress-dot" data-dot="2"></div>
-        <div class="progress-dot" data-dot="3"></div>
-        <div class="progress-dot" data-dot="4"></div>
+      <!-- Expression thumbnails: clicking switches the base annotation image -->
+      <p class="section-heading">Expressions</p>
+      <div class="thumb-row" id="thumb-row"></div>
+
+      <!-- Read-only annotated image with numbered, color-coded dots -->
+      <p class="section-heading">Injection Map</p>
+      <div class="annotation-wrap" id="annotation-wrap">
+        <img id="annotation-img" alt="Clinical expression photo" />
+        <div id="dot-overlay"></div>
       </div>
-      <span class="progress-count" id="progress-count">0 of 4 done</span>
-    </div>
 
-    <!-- Injection step cards — tap to mark done -->
-    <p class="steps-label">Injection steps — tap to mark complete</p>
-
-    <div class="step-card" data-point="1" role="button" tabindex="0" aria-pressed="false">
-      <div class="step-number">1</div>
-      <div class="step-body">
-        <div class="step-site">Forehead</div>
-        <div class="step-badges">
-          <span class="badge">Botox 4 u</span>
-          <span class="badge depth">Superficial</span>
-        </div>
-        <div class="step-note">Frontalis muscle. Dilute 2u/0.1ml. Fan pattern, 4 equal points.</div>
+      <!-- Injection points list — same format as expert-annotation, read-only -->
+      <div class="ann-list-section">
+        <p class="section-heading">Point Details</p>
+        <ol id="ann-list"></ol>
       </div>
-      <div class="step-check">✓</div>
-    </div>
 
-    <div class="step-card" data-point="2" role="button" tabindex="0" aria-pressed="false">
-      <div class="step-number">2</div>
-      <div class="step-body">
-        <div class="step-site">Left crow's feet</div>
-        <div class="step-badges">
-          <span class="badge">Botox 6 u</span>
-          <span class="badge depth">Superficial</span>
-        </div>
-        <div class="step-note">Orbicularis oculi lateral fibers. 3 points, 2u each. Stay 1 cm from orbital rim.</div>
+      <!-- Expert notes: consolidated note text from any dots that have notes -->
+      <div class="notes-section" id="notes-section" hidden>
+        <p class="section-heading">Expert Notes</p>
+        <div class="notes-box" id="notes-box"></div>
       </div>
-      <div class="step-check">✓</div>
-    </div>
 
-    <div class="step-card" data-point="3" role="button" tabindex="0" aria-pressed="false">
-      <div class="step-number">3</div>
-      <div class="step-body">
-        <div class="step-site">Right crow's feet</div>
-        <div class="step-badges">
-          <span class="badge">Botox 6 u</span>
-          <span class="badge depth">Superficial</span>
-        </div>
-        <div class="step-note">Mirror left side. Assess symmetry before withdrawing.</div>
-      </div>
-      <div class="step-check">✓</div>
-    </div>
-
-    <div class="step-card" data-point="4" role="button" tabindex="0" aria-pressed="false">
-      <div class="step-number">4</div>
-      <div class="step-body">
-        <div class="step-site">Upper lip border</div>
-        <div class="step-badges">
-          <span class="badge">Filler 0.3 ml</span>
-          <span class="badge depth">Deep</span>
-        </div>
-        <div class="step-note">Vermillion border, linear threading. Juvederm Ultra. Avoid labial artery.</div>
-      </div>
-      <div class="step-check">✓</div>
-    </div>
+    </div><!-- /#plan-content -->
 
     <div class="action-row" style="margin-top: 28px;">
       <a href="case-submitted.html" class="btn btn-secondary" style="text-decoration: none;">← Back</a>
@@ -368,54 +317,197 @@
   </div>
 
   <script>
-    const markers   = document.querySelectorAll('.injection-marker');
-    const cards     = document.querySelectorAll('.step-card');
-    const dots      = document.querySelectorAll('.progress-dot');
-    const countEl   = document.getElementById('progress-count');
+    const EXPRESSIONS = [
+      'Neutral / Serious',
+      'Raised Eyebrows',
+      'Frown',
+      'Smile',
+      'Sad',
+      'Left Side (90°)',
+      'Right Side (90°)',
+    ];
 
-    // ── Hover cross-highlight between photo markers and step cards ──
-    function setHighlight(point) {
-      markers.forEach(m => m.classList.toggle('highlight', m.dataset.point === point));
-      cards.forEach(c => c.classList.toggle('highlight', c.dataset.point === point));
-    }
-    function clearHighlight() {
-      markers.forEach(m => m.classList.remove('highlight'));
-      cards.forEach(c => c.classList.remove('highlight'));
-    }
-    [...markers, ...cards].forEach(el => {
-      el.addEventListener('mouseenter', () => setHighlight(el.dataset.point));
-      el.addEventListener('mouseleave', clearHighlight);
-    });
+    // ── Load session data ──
+    const capture    = JSON.parse(sessionStorage.getItem('arla_capture')    || 'null');
+    const annotation = JSON.parse(sessionStorage.getItem('arla_annotation') || 'null');
 
-    // ── Tap-to-complete step cards ──
-    function updateProgress() {
-      const doneCount = document.querySelectorAll('.step-card.done').length;
-      countEl.textContent = `${doneCount} of 4 done`;
-      dots.forEach(d => d.classList.toggle('done', parseInt(d.dataset.dot) <= doneCount));
+    const snapshots = capture?.snapshots ?? [];
+    const dots      = annotation?.dots   ?? [];
+
+    // ── Patient header ──
+    document.getElementById('patient-name').textContent =
+      capture?.patientName || 'Patient';
+    document.getElementById('chief-complaint').textContent =
+      capture?.complaint || '';
+    // Static case ID placeholder — no backend yet
+    document.getElementById('plan-id').textContent = 'ARL-2026-0042';
+
+    if (annotation?.submittedAt) {
+      const d = new Date(annotation.submittedAt);
+      document.getElementById('plan-attribution').textContent =
+        'Plan submitted ' + d.toLocaleString();
     }
 
-    cards.forEach(card => {
-      function toggle() {
-        const isDone = card.classList.toggle('done');
-        card.setAttribute('aria-pressed', isDone);
-        const point = card.dataset.point;
-        markers.forEach(m => m.classList.toggle('done', m.dataset.point === point && isDone));
-        updateProgress();
+    // ── Mutable UI state — declared before any function that reads them ──
+    let activeThumbIndex = 0;
+    let highlightedDotId = null;
+
+    // ── Show awaiting or plan content ──
+    if (!annotation) {
+      document.getElementById('awaiting-box').hidden = false;
+    } else {
+      document.getElementById('plan-content').hidden = false;
+      buildThumbs();
+      selectThumb(0);
+      renderList();
+      buildNotes();
+    }
+
+    // ── Thumbnails ──
+
+    function buildThumbs() {
+      const row = document.getElementById('thumb-row');
+      EXPRESSIONS.forEach((name, i) => {
+        const item = document.createElement('div');
+        item.className = 'thumb-item';
+
+        if (snapshots[i]) {
+          const img = document.createElement('img');
+          img.src = snapshots[i];
+          img.alt = name;
+          item.appendChild(img);
+        } else {
+          const ph = document.createElement('div');
+          ph.className = 'thumb-placeholder';
+          ph.textContent = String(i + 1);
+          item.appendChild(ph);
+        }
+
+        const lbl = document.createElement('span');
+        lbl.className = 'thumb-label';
+        lbl.textContent = name;
+        item.appendChild(lbl);
+
+        item.addEventListener('click', () => { highlightedDotId = null; selectThumb(i); });
+        row.appendChild(item);
+      });
+    }
+
+    function selectThumb(index) {
+      activeThumbIndex = index;
+      document.querySelectorAll('#thumb-row .thumb-item').forEach((el, i) => {
+        el.classList.toggle('active', i === index);
+      });
+
+      const img = document.getElementById('annotation-img');
+      const wrap = document.getElementById('annotation-wrap');
+      if (snapshots[index]) {
+        img.onerror = () => console.error(`Failed to load snapshot[${index}]:`, snapshots[index].slice(0, 80));
+        img.src = snapshots[index];
+        img.style.display = 'block';
+        wrap.querySelector('.img-unavailable')?.remove();
+      } else {
+        img.style.display = 'none';
+        if (!wrap.querySelector('.img-unavailable')) {
+          const ph = document.createElement('div');
+          ph.className = 'img-unavailable';
+          ph.textContent = 'No image captured for this expression';
+          wrap.appendChild(ph);
+        }
       }
-      card.addEventListener('click', toggle);
-      card.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); } });
-    });
 
-    // ── Assessment accordion ──
-    const toggleBtn  = document.querySelector('.assessment-toggle');
-    const assessBody = document.getElementById('assessment-body');
-    toggleBtn.addEventListener('click', () => {
-      const open = toggleBtn.getAttribute('aria-expanded') === 'true';
-      toggleBtn.setAttribute('aria-expanded', !open);
-      assessBody.hidden = open;
-      // Adjust border-radius so toggle and body join seamlessly when open
-      toggleBtn.style.borderRadius = open ? '6px' : '6px 6px 0 0';
-    });
+      renderDots();
+    }
+
+    // ── Render dots for the currently displayed expression ──
+    function renderDots() {
+      const overlay = document.getElementById('dot-overlay');
+      overlay.innerHTML = '';
+      dots
+        .filter(d => d.expressionIndex === activeThumbIndex)
+        .forEach(dot => {
+          const el = document.createElement('div');
+          const depthClass = dot.depth === 'Deep' ? 'deep' : 'superficial';
+          const hlClass    = dot.id === highlightedDotId ? ' highlighted' : '';
+          el.className = `ann-dot ${depthClass}${hlClass}`;
+          el.style.left = dot.x + '%';
+          el.style.top  = dot.y + '%';
+          el.textContent = dot.id;
+          el.title = `Point ${dot.id}: ${dot.depth}${dot.dosage ? ' · ' + dot.dosage : ''}`;
+          overlay.appendChild(el);
+        });
+    }
+
+    // ── Injection points list ──
+    function renderList() {
+      const list = document.getElementById('ann-list');
+      if (dots.length === 0) {
+        list.innerHTML = '<li class="ann-empty">No injection points recorded.</li>';
+        return;
+      }
+      dots.forEach(dot => {
+        const li = document.createElement('li');
+        li.className = 'ann-item';
+
+        // Clicking a list item jumps to that expression and highlights the dot
+        li.addEventListener('click', () => {
+          highlightedDotId = dot.id;
+          selectThumb(dot.expressionIndex);
+          document.querySelectorAll('#ann-list .ann-item').forEach(el =>
+            el.classList.toggle('active', el === li));
+        });
+
+        const dotEl = document.createElement('div');
+        dotEl.className = `ann-item-dot ${dot.depth === 'Deep' ? 'deep' : 'superficial'}`;
+        dotEl.textContent = dot.id;
+
+        const body = document.createElement('div');
+        body.className = 'ann-item-body';
+
+        const depthEl = document.createElement('p');
+        depthEl.className = `ann-item-depth ${dot.depth === 'Deep' ? 'deep' : 'superficial'}`;
+        depthEl.textContent = dot.depth;
+        body.appendChild(depthEl);
+
+        const exprEl = document.createElement('p');
+        exprEl.className = 'ann-item-expr';
+        exprEl.textContent = EXPRESSIONS[dot.expressionIndex] || `Expression ${dot.expressionIndex + 1}`;
+        body.appendChild(exprEl);
+
+        if (dot.dosage) {
+          const dosageEl = document.createElement('p');
+          dosageEl.className = 'ann-item-dosage';
+          dosageEl.textContent = dot.dosage;
+          body.appendChild(dosageEl);
+        }
+
+        if (dot.note) {
+          const noteEl = document.createElement('p');
+          noteEl.className = 'ann-item-note';
+          noteEl.textContent = `"${dot.note}"`;
+          body.appendChild(noteEl);
+        }
+
+        li.appendChild(dotEl);
+        li.appendChild(body);
+        list.appendChild(li);
+      });
+    }
+
+    // ── Expert notes: any dot with free-text note gets an entry ──
+    function buildNotes() {
+      const noteDots = dots.filter(d => d.note);
+      if (noteDots.length === 0) return;
+
+      document.getElementById('notes-section').hidden = false;
+      const box = document.getElementById('notes-box');
+      noteDots.forEach(dot => {
+        const label = document.createElement('p');
+        label.innerHTML =
+          `<span class="notes-point-label">Point ${dot.id} · ${EXPRESSIONS[dot.expressionIndex] || ''}</span><br>${dot.note}`;
+        box.appendChild(label);
+      });
+    }
   </script>
 </body>
 </html>
