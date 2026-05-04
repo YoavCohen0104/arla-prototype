@@ -159,9 +159,7 @@ function initConfirm() {
   });
 
   document.getElementById('btn-confirm')?.addEventListener('click', () => {
-    console.log('Case started:', data);
-    clearSession();
-    // Placeholder: in production this would navigate to the case view
+    window.location.href = 'facial-capture.html';
   });
 }
 

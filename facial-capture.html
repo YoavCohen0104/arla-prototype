@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Facial Capture — Arla Aesthetics</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .capture-frame {
+      width: 100%;
+      aspect-ratio: 3 / 4;
+      max-height: 340px;
+      background: #1a1a1a;
+      border-radius: var(--radius);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 20px 0;
+      position: relative;
+    }
+
+    .capture-video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      /* mirror so it feels like a selfie camera */
+      transform: scaleX(-1);
+      display: block;
+    }
+
+    .cam-error {
+      font-size: 13px;
+      color: var(--color-text-muted);
+      text-align: center;
+      padding: 0 24px;
+      line-height: 1.6;
+    }
+
+    .expr-name {
+      font-family: Georgia, 'Times New Roman', serif;
+      font-size: 18px;
+      font-weight: normal;
+      text-align: center;
+      margin: 12px 0 4px;
+      color: var(--color-text);
+    }
+
+    .expr-instruction {
+      font-size: 14px;
+      color: var(--color-text-muted);
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .cancel-link {
+      text-align: center;
+      margin-top: 18px;
+      font-size: 13px;
+    }
+
+    .cancel-link a {
+      color: var(--color-text-muted);
+      text-decoration: none;
+    }
+
+    .cancel-link a:hover {
+      color: var(--color-rose);
+      text-decoration: underline;
+    }
+
+    /* ── Review screen ── */
+
+    .review-patient {
+      font-size: 14px;
+      color: var(--color-text-muted);
+      margin-bottom: 20px;
+    }
+
+    .thumb-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 28px;
+    }
+
+    .thumb-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .thumb-frame {
+      width: 100%;
+      aspect-ratio: 3 / 4;
+      object-fit: cover;
+      border-radius: 6px;
+      background: var(--color-border);
+      display: block;
+    }
+
+    .thumb-label {
+      font-size: 10px;
+      color: var(--color-text-muted);
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      line-height: 1.3;
+    }
+
+    /* ── Review video playback ── */
+
+    .review-section-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--color-text-muted);
+      margin-bottom: 8px;
+    }
+
+    .review-video {
+      width: 100%;
+      border-radius: var(--radius);
+      background: #1a1a1a;
+      display: block;
+      margin-bottom: 24px;
+      /* max height keeps it from dominating the card on tall displays */
+      max-height: 320px;
+      object-fit: contain;
+    }
+
+    .no-recording-note {
+      font-size: 13px;
+      color: var(--color-text-muted);
+      background: var(--color-rose-pale);
+      border-radius: 6px;
+      padding: 10px 14px;
+      margin-bottom: 24px;
+    }
+  </style>
+</head>
+<body>
+  <!-- ── Capture screen (steps 1–7) ── -->
+  <div class="card" id="capture-screen">
+    <p class="brand">Arla Aesthetics</p>
+    <h1>Facial Capture</h1>
+
+    <div class="step-indicator">
+      <span class="step-label" id="step-label">Expression 1 of 7</span>
+      <div class="step-bar">
+        <div class="step-bar-fill" id="step-bar-fill" style="width: 0%"></div>
+      </div>
+    </div>
+
+    <h2 class="expr-name" id="expr-name"></h2>
+    <p class="expr-instruction" id="expr-instruction"></p>
+
+    <div class="capture-frame">
+      <video id="capture-video" class="capture-video" autoplay playsinline muted></video>
+      <p class="cam-error" id="cam-error" hidden>
+        Camera access was denied or is unavailable.<br />
+        Grant camera permission and reload to continue.
+      </p>
+    </div>
+
+    <!-- Canvas is never displayed; used only to snapshot the video frame -->
+    <canvas id="snap-canvas" hidden></canvas>
+
+    <button id="capture-btn" class="btn btn-primary">Capture</button>
+
+    <p class="cancel-link">
+      <a href="index.html">Cancel — return to home</a>
+    </p>
+  </div>
+
+  <!-- ── Review screen (shown after all 7 captures) ── -->
+  <div class="card" id="review-screen" hidden>
+    <p class="brand">Arla Aesthetics</p>
+    <h1>Capture Complete</h1>
+    <p class="review-patient" id="review-patient"></p>
+
+    <!-- Full session recording — populated after MediaRecorder stops -->
+    <div id="review-video-section" hidden>
+      <p class="review-section-label">Full Session Recording</p>
+      <video id="review-video" class="review-video" controls></video>
+    </div>
+
+    <!-- Shown only if MediaRecorder is unsupported or failed -->
+    <p class="no-recording-note" id="no-recording-note" hidden>
+      Video recording is not available in this browser. Still images were captured.
+    </p>
+
+    <p class="review-section-label">Captured Expressions</p>
+    <div class="thumb-grid" id="thumb-grid"></div>
+
+    <button id="submit-btn" class="btn btn-primary">Submit Case</button>
+  </div>
+
+  <script>
+    const EXPRESSIONS = [
+      { name: 'Neutral / Serious',     instruction: 'Relax your face completely. Look straight into the camera.' },
+      { name: 'Raised Eyebrows',       instruction: 'Raise both eyebrows as high as possible, as if surprised.' },
+      { name: 'Frown',                 instruction: 'Furrow your brows and frown, drawing your eyebrows together.' },
+      { name: 'Smile',                 instruction: 'Give a natural, open-mouth smile.' },
+      { name: 'Sad',                   instruction: 'Lower the corners of your mouth and look sad.' },
+      { name: 'Left Side View (90°)',  instruction: 'Turn your head 90° to the left to show your full left profile.' },
+      { name: 'Right Side View (90°)', instruction: 'Turn your head 90° to the right to show your full right profile.' },
+    ];
+
+    const TOTAL = EXPRESSIONS.length;
+
+    const captureScreen  = document.getElementById('capture-screen');
+    const reviewScreen   = document.getElementById('review-screen');
+    const stepLabel      = document.getElementById('step-label');
+    const stepBarFill    = document.getElementById('step-bar-fill');
+    const exprName       = document.getElementById('expr-name');
+    const exprInstruct   = document.getElementById('expr-instruction');
+    const video          = document.getElementById('capture-video');
+    const camError       = document.getElementById('cam-error');
+    const canvas         = document.getElementById('snap-canvas');
+    const captureBtn     = document.getElementById('capture-btn');
+    const thumbGrid          = document.getElementById('thumb-grid');
+    const reviewPatient      = document.getElementById('review-patient');
+    const reviewVideoSection = document.getElementById('review-video-section');
+    const reviewVideoEl      = document.getElementById('review-video');
+    const noRecordingNote    = document.getElementById('no-recording-note');
+    const submitBtn          = document.getElementById('submit-btn');
+
+    let currentStep = 0;
+    const snapshots = [];
+    let stream = null;
+    let recorder = null;
+    const recordedChunks = [];
+
+    // ── Guard: require session data ──
+    const sessionRaw = sessionStorage.getItem('arla_intake');
+    if (!sessionRaw) {
+      window.location.href = 'intake-form.html';
+    }
+    const intakeData = JSON.parse(sessionRaw || '{}');
+    const patientName = intakeData.name || 'Unknown patient';
+
+    // ── Camera init ──
+    async function startCamera() {
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 960 } },
+        });
+        video.srcObject = stream;
+      } catch {
+        video.hidden = true;
+        camError.hidden = false;
+        captureBtn.disabled = true;
+        captureBtn.textContent = 'Camera Unavailable';
+      }
+    }
+
+    // ── MediaRecorder: start when first expression begins ──
+    function startRecording() {
+      if (!window.MediaRecorder || !stream) {
+        noRecordingNote.hidden = false;
+        return;
+      }
+      try {
+        // Pick the best supported container/codec
+        const mimeType = [
+          'video/webm;codecs=vp9',
+          'video/webm;codecs=vp8',
+          'video/webm',
+          'video/mp4',
+        ].find(t => MediaRecorder.isTypeSupported(t)) || '';
+
+        recorder = new MediaRecorder(stream, mimeType ? { mimeType } : {});
+
+        recorder.ondataavailable = e => {
+          if (e.data && e.data.size > 0) recordedChunks.push(e.data);
+        };
+
+        recorder.onstop = () => {
+          const blob = new Blob(recordedChunks, { type: recorder.mimeType || 'video/webm' });
+          reviewVideoEl.src = URL.createObjectURL(blob);
+          reviewVideoSection.hidden = false;
+        };
+
+        recorder.start();
+      } catch {
+        noRecordingNote.hidden = false;
+      }
+    }
+
+    // ── Render step ──
+    function renderStep(index) {
+      const expr = EXPRESSIONS[index];
+      stepLabel.textContent  = `Expression ${index + 1} of ${TOTAL}`;
+      stepBarFill.style.width = `${(index / TOTAL) * 100}%`;
+      exprName.textContent   = expr.name;
+      exprInstruct.textContent = expr.instruction;
+    }
+
+    // ── Show review ──
+    function showReview() {
+      // Stop the camera
+      if (stream) stream.getTracks().forEach(t => t.stop());
+
+      captureScreen.hidden = true;
+      reviewScreen.hidden = false;
+
+      reviewPatient.textContent = `Patient: ${patientName}`;
+
+      thumbGrid.innerHTML = '';
+      snapshots.forEach((dataURL, i) => {
+        const item = document.createElement('div');
+        item.className = 'thumb-item';
+
+        const img = document.createElement('img');
+        img.className = 'thumb-frame';
+        img.src = dataURL;
+        img.alt = EXPRESSIONS[i].name;
+
+        const label = document.createElement('span');
+        label.className = 'thumb-label';
+        label.textContent = EXPRESSIONS[i].name;
+
+        item.append(img, label);
+        thumbGrid.appendChild(item);
+      });
+    }
+
+    // ── Capture click ──
+    captureBtn.addEventListener('click', () => {
+      // Start the video recording on the very first capture
+      if (currentStep === 0) startRecording();
+
+      // Snapshot: draw current video frame onto hidden canvas
+      const vw = video.videoWidth  || 640;
+      const vh = video.videoHeight || 480;
+      canvas.width  = vw;
+      canvas.height = vh;
+      const ctx = canvas.getContext('2d');
+      // Mirror the canvas draw to match the display
+      ctx.translate(vw, 0);
+      ctx.scale(-1, 1);
+      ctx.drawImage(video, 0, 0, vw, vh);
+
+      const dataURL = canvas.toDataURL('image/jpeg', 0.85);
+      snapshots.push(dataURL);
+
+      currentStep++;
+      if (currentStep < TOTAL) {
+        renderStep(currentStep);
+        stepBarFill.style.width = `${(currentStep / TOTAL) * 100}%`;
+      } else {
+        // Stop recording — onstop handler will create the blob URL and show the player
+        if (recorder && recorder.state !== 'inactive') recorder.stop();
+        showReview();
+      }
+    });
+
+    // ── Submit click ──
+    submitBtn.addEventListener('click', () => {
+      sessionStorage.removeItem('arla_intake');
+      window.location.href = 'case-submitted.html';
+    });
+
+    // ── Init ──
+    renderStep(0);
+    startCamera();
+  </script>
+</body>
+</html>
