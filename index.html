@@ -5,6 +5,100 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Clinic Dashboard — Arla Aesthetics</title>
   <link rel="stylesheet" href="style.css" />
+  <style>
+    .patient-search {
+      position: relative;
+      margin-bottom: 24px;
+    }
+
+    .search-input-wrap {
+      position: relative;
+    }
+
+    .search-input-wrap svg {
+      position: absolute;
+      left: 13px;
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none;
+      color: var(--color-text-muted);
+    }
+
+    #patientSearchInput {
+      padding-left: 38px;
+    }
+
+    .search-results {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      right: 0;
+      background: var(--color-card);
+      border: 1.5px solid var(--color-border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      z-index: 100;
+      overflow: hidden;
+    }
+
+    .search-result-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .search-result-row:last-child {
+      border-bottom: none;
+    }
+
+    .search-result-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--color-text);
+      margin-bottom: 2px;
+    }
+
+    .search-result-meta {
+      font-size: 12px;
+      color: var(--color-text-muted);
+    }
+
+    .btn-open-patient {
+      display: inline-block;
+      padding: 7px 16px;
+      border-radius: 7px;
+      font-size: 13px;
+      font-family: inherit;
+      cursor: pointer;
+      border: 1.5px solid var(--color-rose-light);
+      background: transparent;
+      color: var(--color-rose);
+      white-space: nowrap;
+      text-decoration: none;
+      transition: background 0.15s, color 0.15s;
+      flex-shrink: 0;
+    }
+
+    .btn-open-patient:hover {
+      background: var(--color-rose);
+      color: #fff;
+    }
+
+    .search-empty {
+      padding: 16px;
+      font-size: 13px;
+      color: var(--color-text-muted);
+      text-align: center;
+    }
+
+    .search-empty a {
+      color: var(--color-rose);
+      text-decoration: underline;
+    }
+  </style>
 </head>
 <body>
   <div class="page-stack">
@@ -39,6 +133,24 @@
 
     <!-- Primary CTA: start a new case -->
     <a href="intake-form.html" class="btn btn-primary" style="display: block; text-align: center; text-decoration: none; margin-bottom: 24px;">+ New Patient</a>
+
+    <!-- Patient search — find returning patients to avoid duplicate case creation -->
+    <div class="patient-search" id="patientSearch">
+      <div class="search-input-wrap">
+        <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <circle cx="6.5" cy="6.5" r="5" stroke="currentColor" stroke-width="1.5"/>
+          <line x1="10.5" y1="10.5" x2="14" y2="14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <input
+          type="text"
+          id="patientSearchInput"
+          placeholder="Search returning patients by name or phone…"
+          autocomplete="off"
+          aria-label="Search returning patients"
+        />
+      </div>
+      <div class="search-results" id="searchResults" hidden></div>
+    </div>
 
     <!-- Highest-priority action: the one plan the injector needs to act on now -->
     <p class="section-heading" style="margin-top: 0;">Next action</p>
@@ -120,5 +232,56 @@
     </ol>
   </div>
   </div>
+
+  <script>
+    const PATIENTS = [
+      { name: 'Sarah Cohen',  phone: '052-1234567', lastVisit: 'April 15, 2026' },
+      { name: 'Mia Levi',    phone: '054-9876543', lastVisit: 'March 6, 2026'  },
+      { name: 'Dana Shapiro', phone: '050-1112233', lastVisit: 'April 29, 2026' },
+    ];
+
+    const searchWrap   = document.getElementById('patientSearch');
+    const searchInput  = document.getElementById('patientSearchInput');
+    const resultsPanel = document.getElementById('searchResults');
+
+    function renderResults(query) {
+      const q = query.trim().toLowerCase();
+      if (!q) { resultsPanel.hidden = true; return; }
+
+      const hits = PATIENTS.filter(p =>
+        p.name.toLowerCase().includes(q) || p.phone.includes(q)
+      );
+
+      resultsPanel.hidden = false;
+
+      if (hits.length === 0) {
+        resultsPanel.innerHTML =
+          '<div class="search-empty">No patients found — ' +
+          '<a href="intake-form.html">create new patient instead</a></div>';
+        return;
+      }
+
+      resultsPanel.innerHTML = hits.map(p =>
+        '<div class="search-result-row">' +
+          '<div>' +
+            '<div class="search-result-name">' + p.name + '</div>' +
+            '<div class="search-result-meta">' + p.phone + ' &middot; Last visit ' + p.lastVisit + '</div>' +
+          '</div>' +
+          '<a href="patient-folder.html" class="btn-open-patient">Open Patient</a>' +
+        '</div>'
+      ).join('');
+    }
+
+    searchInput.addEventListener('input', function() { renderResults(this.value); });
+
+    searchInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') { this.value = ''; resultsPanel.hidden = true; }
+    });
+
+    // Close results when clicking outside the search widget
+    document.addEventListener('click', function(e) {
+      if (!searchWrap.contains(e.target)) { resultsPanel.hidden = true; }
+    });
+  </script>
 </body>
 </html>
