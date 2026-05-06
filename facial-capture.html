@@ -388,11 +388,15 @@
     let isPaused = false;
 
     // ── Guard: require session data ──
-    const sessionRaw = sessionStorage.getItem('arla_intake');
-    if (!sessionRaw) {
+    // Accept either a fresh intake form submission or a returning patient selected from the folder.
+    const sessionRaw         = sessionStorage.getItem('arla_intake');
+    const selectedPatientRaw = sessionStorage.getItem('arla_selected_patient');
+
+    if (!sessionRaw && !selectedPatientRaw) {
       window.location.href = 'intake-form.html';
     }
-    const intakeData = JSON.parse(sessionRaw || '{}');
+
+    const intakeData  = JSON.parse(sessionRaw || selectedPatientRaw || '{}');
     const patientName = intakeData.name || 'Unknown patient';
 
     // ── Camera init ──

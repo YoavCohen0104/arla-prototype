@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Patient Folder — Arla Aesthetics</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .patient-avatar {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: var(--color-rose);
+      color: #fff;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .patient-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 24px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .patient-header-info {
+      flex: 1;
+    }
+
+    .patient-header-name {
+      font-family: Georgia, 'Times New Roman', serif;
+      font-size: 22px;
+      font-weight: normal;
+      color: var(--color-text);
+      margin: 0 0 2px;
+    }
+
+    .patient-header-meta {
+      font-size: 12px;
+      color: var(--color-text-muted);
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+
+    .info-item {
+      background: var(--color-rose-pale);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius);
+      padding: 10px 14px;
+    }
+
+    .info-label {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--color-text-muted);
+      margin-bottom: 3px;
+    }
+
+    .info-value {
+      font-size: 14px;
+      color: var(--color-text);
+    }
+
+    /* Case history rows */
+    .case-history-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .case-history-row:last-child {
+      border-bottom: none;
+    }
+
+    .case-history-id {
+      font-size: 11px;
+      font-family: monospace;
+      color: var(--color-text-muted);
+      margin-bottom: 3px;
+    }
+
+    .case-history-date {
+      font-size: 12px;
+      color: var(--color-text-muted);
+      margin-top: 2px;
+    }
+
+    .status-closed {
+      background: #f0fdf4;
+      color: #166534;
+      border: 1px solid #86efac;
+      border-radius: 20px;
+      font-size: 11px;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      white-space: nowrap;
+    }
+
+    .status-in-review {
+      background: #fffbeb;
+      color: #92400e;
+      border: 1px solid #fcd34d;
+      border-radius: 20px;
+      font-size: 11px;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      white-space: nowrap;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: var(--color-text-muted);
+      text-decoration: none;
+      margin-bottom: 20px;
+    }
+
+    .back-link:hover {
+      color: var(--color-rose);
+    }
+
+    .complaint-block {
+      background: var(--color-bg);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius);
+      padding: 12px 14px;
+      font-size: 14px;
+      color: var(--color-text);
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+  <div class="page-stack">
+    <nav class="proto-nav">
+      <a href="index.html">Injector View</a>
+      <a href="expert-dashboard.html">Expert View</a>
+      <a href="expert-annotation.html">Annotation</a>
+      <a href="case-submitted.html">Case Submitted</a>
+      <a href="treatment-plan.html">Treatment Plan</a>
+      <a href="feedback.html">Feedback</a>
+    </nav>
+    <div class="card">
+      <p class="brand">Arla Aesthetics</p>
+
+      <a href="index.html" class="back-link">&#8592; Back to Home</a>
+
+      <!-- Patient identity header -->
+      <div class="patient-header">
+        <div class="patient-avatar">SC</div>
+        <div class="patient-header-info">
+          <h1 class="patient-header-name">Sarah Cohen</h1>
+          <div class="patient-header-meta">Patient since March 2025 &middot; 3 visits</div>
+        </div>
+      </div>
+
+      <!-- Demographic details -->
+      <p class="section-heading" style="margin-top: 0;">Patient Details</p>
+      <div class="info-grid">
+        <div class="info-item">
+          <div class="info-label">Phone</div>
+          <div class="info-value">052-1234567</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Date of Birth</div>
+          <div class="info-value">14 Jun 1989</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Gender</div>
+          <div class="info-value">Female</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Last Visit</div>
+          <div class="info-value">April 15, 2026</div>
+        </div>
+      </div>
+
+      <!-- Chief complaint for last visit -->
+      <p class="section-heading">Last Chief Complaint</p>
+      <div class="complaint-block">
+        Forehead lines and crow's feet. Patient requests natural-looking result with no frozen appearance.
+      </div>
+
+      <hr class="divider" />
+
+      <!-- Start new case CTA -->
+      <a id="new-case-btn" href="facial-capture.html" class="btn btn-primary" style="display: block; text-align: center; text-decoration: none; margin-bottom: 24px;">+ New Case for This Patient</a>
+
+      <!-- Case history -->
+      <p class="section-heading" style="margin-top: 0;">Case History</p>
+      <div class="case-history-row">
+        <div>
+          <div class="case-history-id">ARL-2026-0042</div>
+          <div class="case-name">Forehead &amp; crow's feet treatment</div>
+          <div class="case-history-date">April 15, 2026</div>
+        </div>
+        <span class="status-closed">Closed</span>
+      </div>
+      <div class="case-history-row">
+        <div>
+          <div class="case-history-id">ARL-2026-0031</div>
+          <div class="case-name">Lip filler touch-up</div>
+          <div class="case-history-date">March 3, 2026</div>
+        </div>
+        <span class="status-closed">Closed</span>
+      </div>
+      <div class="case-history-row">
+        <div>
+          <div class="case-history-id">ARL-2025-0018</div>
+          <div class="case-name">Initial assessment &amp; Botox</div>
+          <div class="case-history-date">November 12, 2025</div>
+        </div>
+        <span class="status-closed">Closed</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('new-case-btn').addEventListener('click', function(e) {
+      e.preventDefault();
+      sessionStorage.setItem('arla_selected_patient', JSON.stringify({
+        name:   'Sarah Cohen',
+        phone:  '052-1234567',
+        dob:    '1989-06-14',
+        gender: 'Female',
+      }));
+      window.location.href = 'facial-capture.html';
+    });
+  </script>
+</body>
+</html>
