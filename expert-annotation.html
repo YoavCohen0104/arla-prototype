@@ -354,6 +354,25 @@
       flex: 1;
       text-align: center;
     }
+
+    /* ── Draft saved toast ── */
+    .draft-toast {
+      display: none;
+      text-align: center;
+      font-size: 0.82rem;
+      color: var(--color-rose);
+      font-weight: 500;
+      margin-top: 10px;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .draft-toast.visible {
+      display: block;
+      opacity: 1;
+    }
+    .draft-toast.fade-out {
+      opacity: 0;
+    }
   </style>
 </head>
 <body>
@@ -432,8 +451,10 @@
       <!-- Actions -->
       <div class="action-row">
         <a href="expert-dashboard.html" class="btn btn-secondary">Back</a>
+        <button class="btn btn-secondary" id="btn-save-draft">Save Draft</button>
         <button class="btn btn-primary" id="btn-submit-plan">Submit Plan</button>
       </div>
+      <p class="draft-toast" id="draft-toast">Draft saved</p>
     </div>
   </div>
 
@@ -711,6 +732,30 @@
         list.appendChild(li);
       });
     }
+
+    // ── Restore draft on load (only if no submitted plan exists) ──
+    if (!sessionStorage.getItem('arla_annotation')) {
+      const draftRaw = sessionStorage.getItem('arla_annotation_draft');
+      if (draftRaw) {
+        try {
+          dots = JSON.parse(draftRaw);
+          renderDots();
+          renderList();
+        } catch (e) { /* ignore corrupt draft */ }
+      }
+    }
+
+    // ── Save draft ──
+    document.getElementById('btn-save-draft').addEventListener('click', () => {
+      sessionStorage.setItem('arla_annotation_draft', JSON.stringify(dots));
+      const toast = document.getElementById('draft-toast');
+      toast.classList.remove('fade-out');
+      toast.classList.add('visible');
+      setTimeout(() => {
+        toast.classList.add('fade-out');
+        setTimeout(() => toast.classList.remove('visible', 'fade-out'), 200);
+      }, 2000);
+    });
 
     // ── Submit plan ──
     document.getElementById('btn-submit-plan').addEventListener('click', () => {
