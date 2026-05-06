@@ -138,6 +138,110 @@
       padding: 10px 14px;
       margin-bottom: 24px;
     }
+
+    /* ── Player control bar ── */
+
+    .ctrl-bar {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      margin: 16px 0 6px;
+      min-height: 72px;
+    }
+
+    .ctrl-slot {
+      display: flex;
+      align-items: center;
+    }
+    .ctrl-left  { justify-content: flex-start; }
+    .ctrl-center { justify-content: center; }
+    .ctrl-right { justify-content: flex-end; }
+
+    .ctrl-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      cursor: pointer;
+      transition: background 0.18s, transform 0.1s, opacity 0.15s;
+      flex-shrink: 0;
+    }
+    /* Author display: flex overrides UA [hidden] display: none — restore it */
+    .ctrl-btn[hidden] { display: none; }
+    .ctrl-btn:active { transform: scale(0.94); }
+
+    /* Large center button — Capture / Resume */
+    .ctrl-main {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: var(--color-rose);
+      color: #fff;
+    }
+    .ctrl-main:hover { background: #a0666c; }
+
+    /* Small side buttons — Cancel / Pause */
+    .ctrl-side {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: transparent;
+      border: 1.5px solid var(--color-rose);
+      color: var(--color-rose);
+    }
+    .ctrl-side:hover { background: var(--color-rose-pale); }
+
+    .btn-danger {
+      background: var(--color-error);
+      color: #fff;
+      border: none;
+      width: auto;
+      padding: 11px 24px;
+      border-radius: var(--radius);
+      font-size: 14px;
+      cursor: pointer;
+      transition: background 0.18s;
+    }
+    .btn-danger:hover { background: #a93226; }
+
+    .dialog-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(58, 40, 40, 0.45);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+    .dialog-backdrop[hidden] { display: none; }
+
+    .dialog-box {
+      background: var(--color-card);
+      border-radius: var(--radius);
+      padding: 28px 24px 24px;
+      max-width: 320px;
+      width: 90%;
+      box-shadow: var(--shadow);
+    }
+
+    .dialog-title {
+      font-family: Georgia, 'Times New Roman', serif;
+      font-size: 18px;
+      font-weight: normal;
+      color: var(--color-text);
+      margin: 0 0 10px;
+    }
+
+    .dialog-body {
+      font-size: 14px;
+      color: var(--color-text-muted);
+      margin: 0 0 22px;
+      line-height: 1.5;
+    }
+
+    .dialog-box .action-row .btn {
+      width: auto;
+    }
   </style>
 </head>
 <body>
@@ -167,11 +271,41 @@
     <!-- Canvas is never displayed; used only to snapshot the video frame -->
     <canvas id="snap-canvas" hidden></canvas>
 
-    <button id="capture-btn" class="btn btn-primary">Capture</button>
-
-    <p class="cancel-link">
-      <a href="index.html">Cancel — return to home</a>
-    </p>
+    <!-- Player-style control bar -->
+    <div class="ctrl-bar">
+      <div class="ctrl-slot ctrl-left">
+        <!-- Cancel: appears after first capture -->
+        <button id="cancel-btn" class="ctrl-btn ctrl-side" hidden aria-label="Cancel">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <line x1="2" y1="2" x2="12" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <line x1="12" y1="2" x2="2" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+      <div class="ctrl-slot ctrl-center">
+        <!-- Capture: visible on load; hidden while paused -->
+        <button id="capture-btn" class="ctrl-btn ctrl-main" aria-label="Capture">
+          <svg width="22" height="22" viewBox="0 0 22 22">
+            <circle cx="11" cy="11" r="8" fill="white" opacity="0.9"/>
+          </svg>
+        </button>
+        <!-- Resume: hidden until paused -->
+        <button id="resume-btn" class="ctrl-btn ctrl-main" hidden aria-label="Resume">
+          <svg width="18" height="20" viewBox="0 0 18 20">
+            <polygon points="3,1 17,10 3,19" fill="white"/>
+          </svg>
+        </button>
+      </div>
+      <div class="ctrl-slot ctrl-right">
+        <!-- Pause: appears after first capture; hidden while paused -->
+        <button id="pause-btn" class="ctrl-btn ctrl-side" hidden aria-label="Pause">
+          <svg width="14" height="16" viewBox="0 0 14 16">
+            <rect x="1" y="1" width="4" height="14" rx="1.5" fill="currentColor"/>
+            <rect x="9" y="1" width="4" height="14" rx="1.5" fill="currentColor"/>
+          </svg>
+        </button>
+      </div>
+    </div>
   </div>
 
   <!-- ── Review screen (shown after all 7 captures) ── -->
@@ -195,6 +329,18 @@
     <div class="thumb-grid" id="thumb-grid"></div>
 
     <button id="submit-btn" class="btn btn-primary">Submit Case</button>
+  </div>
+
+  <!-- Cancel confirmation dialog -->
+  <div id="cancel-dialog" class="dialog-backdrop" hidden>
+    <div class="dialog-box">
+      <h2 class="dialog-title">Discard this scan session?</h2>
+      <p class="dialog-body"></p>
+      <div class="action-row">
+        <button id="dialog-continue-btn" class="btn btn-secondary">Continue Scanning</button>
+        <button id="dialog-discard-btn" class="btn btn-danger">Discard</button>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -226,12 +372,20 @@
     const reviewVideoEl      = document.getElementById('review-video');
     const noRecordingNote    = document.getElementById('no-recording-note');
     const submitBtn          = document.getElementById('submit-btn');
+    const pauseBtn           = document.getElementById('pause-btn');
+    const cancelBtn          = document.getElementById('cancel-btn');
+    const resumeBtn          = document.getElementById('resume-btn');
+    const cancelDialog       = document.getElementById('cancel-dialog');
+    const dialogBody         = cancelDialog.querySelector('.dialog-body');
+    const dialogContinue     = document.getElementById('dialog-continue-btn');
+    const dialogDiscard      = document.getElementById('dialog-discard-btn');
 
     let currentStep = 0;
     const snapshots = [];
     let stream = null;
     let recorder = null;
     const recordedChunks = [];
+    let isPaused = false;
 
     // ── Guard: require session data ──
     const sessionRaw = sessionStorage.getItem('arla_intake');
@@ -252,7 +406,7 @@
         video.hidden = true;
         camError.hidden = false;
         captureBtn.disabled = true;
-        captureBtn.textContent = 'Camera Unavailable';
+        captureBtn.style.opacity = '0.4';
       }
     }
 
@@ -292,9 +446,9 @@
     // ── Render step ──
     function renderStep(index) {
       const expr = EXPRESSIONS[index];
-      stepLabel.textContent  = `Expression ${index + 1} of ${TOTAL}`;
-      stepBarFill.style.width = `${(index / TOTAL) * 100}%`;
-      exprName.textContent   = expr.name;
+      stepLabel.textContent    = `Expression ${index + 1} of ${TOTAL}`;
+      stepBarFill.style.width  = `${(index / TOTAL) * 100}%`;
+      exprName.textContent     = expr.name;
       exprInstruct.textContent = expr.instruction;
     }
 
@@ -327,10 +481,50 @@
       });
     }
 
+    // ── Pause / Resume / Cancel ──
+
+    pauseBtn.addEventListener('click', () => {
+      isPaused = true;
+      if (recorder && recorder.state === 'recording') recorder.pause();
+      captureBtn.hidden = true;
+      pauseBtn.hidden   = true;
+      resumeBtn.hidden  = false;
+    });
+
+    resumeBtn.addEventListener('click', () => {
+      isPaused = false;
+      if (recorder && recorder.state === 'paused') recorder.resume();
+      resumeBtn.hidden  = true;
+      captureBtn.hidden = false;
+      pauseBtn.hidden   = false;
+      renderStep(currentStep);
+    });
+
+    cancelBtn.addEventListener('click', () => {
+      // Update dialog count from current state; never touch captureStatus here
+      dialogBody.textContent =
+        `${currentStep} of ${TOTAL} expressions have been captured. All progress will be lost.`;
+      cancelDialog.hidden = false;
+    });
+
+    dialogContinue.addEventListener('click', () => {
+      cancelDialog.hidden = true;
+    });
+
+    dialogDiscard.addEventListener('click', () => {
+      if (stream) stream.getTracks().forEach(t => t.stop());
+      sessionStorage.removeItem('arla_intake');
+      window.location.href = 'index.html';
+    });
+
     // ── Capture click ──
     captureBtn.addEventListener('click', () => {
       // Start the video recording on the very first capture
-      if (currentStep === 0) startRecording();
+      if (currentStep === 0) {
+        startRecording();
+        cancelBtn.hidden = false;
+        pauseBtn.hidden  = false;
+      }
 
       // Snapshot: draw current video frame onto hidden canvas
       const vw = video.videoWidth  || 640;
