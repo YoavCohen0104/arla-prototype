@@ -5,6 +5,51 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Patient Intake — Arla Aesthetics</title>
   <link rel="stylesheet" href="style.css" />
+  <style>
+    .duplicate-warning {
+      display: none;
+      background: #fdf6e3;
+      border: 1.5px solid #d4a843;
+      border-radius: 7px;
+      padding: 12px 14px;
+      margin-top: 8px;
+      font-size: 14px;
+      color: var(--color-text);
+      line-height: 1.5;
+    }
+    .duplicate-warning.visible { display: block; }
+    .dup-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+    .btn-warn-open {
+      background: #d4a843;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 7px 14px;
+      font-size: 13px;
+      font-family: inherit;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      font-weight: 500;
+    }
+    .btn-warn-open:hover { background: #bb9034; }
+    .btn-warn-dismiss {
+      background: transparent;
+      color: var(--color-text-muted);
+      border: 1.5px solid var(--color-border);
+      border-radius: 6px;
+      padding: 7px 14px;
+      font-size: 13px;
+      font-family: inherit;
+      cursor: pointer;
+    }
+    .btn-warn-dismiss:hover { border-color: var(--color-text-muted); color: var(--color-text); }
+  </style>
 </head>
 <body>
   <div class="card">
@@ -40,6 +85,13 @@
           autocomplete="tel"
         />
         <span class="error-msg" id="phone-error"></span>
+        <div class="duplicate-warning" id="phone-duplicate">
+          <p>A patient with this number already exists: <strong class="dup-name"></strong>. Open their folder instead?</p>
+          <div class="dup-actions">
+            <a href="patient-folder.html" class="btn-warn-open">Open Patient</a>
+            <button type="button" class="btn-warn-dismiss" id="dup-continue">Continue Anyway</button>
+          </div>
+        </div>
       </div>
 
       <div class="field">

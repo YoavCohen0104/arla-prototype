@@ -4,6 +4,24 @@ const SESSION_KEY = 'arla_intake';
 
 const PHONE_RE = /^\+?[\d\s\-() ]{7,15}$/;
 
+/* ── Duplicate phone detection ── */
+
+const DEMO_PATIENTS = [
+  { name: 'Sarah Cohen',   phone: '052-1234567' },
+  { name: 'Mia Levi',     phone: '054-9876543' },
+  { name: 'Dana Shapiro', phone: '050-1112233' },
+];
+
+function normalizePhone(p) {
+  return p.replace(/[\s\-()]/g, '');
+}
+
+function findDuplicatePatient(phone) {
+  const n = normalizePhone(phone);
+  if (!n) return null;
+  return DEMO_PATIENTS.find(p => normalizePhone(p.phone) === n) ?? null;
+}
+
 /* ── Validation ── */
 
 function validateForm() {
@@ -107,6 +125,29 @@ function initForm() {
     document.getElementById('dob').value       = saved.dob       ?? '';
     document.getElementById('gender').value    = saved.gender    ?? '';
     document.getElementById('complaint').value = saved.complaint ?? '';
+  }
+
+  // Duplicate phone check on blur
+  const phoneInput = document.getElementById('phone');
+  const dupWarning = document.getElementById('phone-duplicate');
+  let dupDismissed = false;
+
+  if (phoneInput && dupWarning) {
+    phoneInput.addEventListener('blur', () => {
+      if (dupDismissed) return;
+      const match = findDuplicatePatient(phoneInput.value.trim());
+      if (match) {
+        dupWarning.querySelector('.dup-name').textContent = match.name;
+        dupWarning.classList.add('visible');
+      } else {
+        dupWarning.classList.remove('visible');
+      }
+    });
+
+    document.getElementById('dup-continue')?.addEventListener('click', () => {
+      dupDismissed = true;
+      dupWarning.classList.remove('visible');
+    });
   }
 
   // Clear per-field error on input
