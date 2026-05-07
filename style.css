@@ -283,8 +283,7 @@ textarea.invalid {
 .proto-nav {
   display: flex;
   justify-content: center;
-  flex-wrap: wrap;
-  gap: 2px;
+  gap: 24px;
   margin-bottom: 10px;
 }
 
@@ -294,18 +293,17 @@ textarea.invalid {
   letter-spacing: 0.08em;
   color: var(--color-text-muted);
   text-decoration: none;
-  padding: 5px 10px;
-  border-radius: 5px;
-  transition: color 0.15s, background 0.15s;
+  padding-bottom: 3px;
+  transition: color 0.15s;
 }
 
 .proto-nav a:hover {
   color: var(--color-rose);
-  background: var(--color-rose-pale);
 }
 
 .proto-nav a.active {
   color: var(--color-rose);
+  border-bottom: 2px solid var(--color-rose);
 }
 
 /* ── Treatment Plan Loop ── */

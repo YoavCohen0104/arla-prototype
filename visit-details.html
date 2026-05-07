@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Visit Details — Arla Aesthetics</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: var(--color-text-muted);
+      text-decoration: none;
+      margin-bottom: 20px;
+    }
+    .back-link:hover { color: var(--color-rose); }
+
+    .visit-meta {
+      font-size: 13px;
+      color: var(--color-text-muted);
+      margin-bottom: 16px;
+    }
+
+    /* ── Status badge variants ── */
+    .status-badge {
+      display: inline-block;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 4px 14px;
+      margin-bottom: 24px;
+    }
+    .badge-pending   { background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; }
+    .badge-in-review { background: #eff6ff; color: #1e40af; border: 1px solid #93c5fd; }
+    .badge-planned   { background: #f0fdf4; color: #166534; border: 1px solid #86efac; }
+    .badge-closed    { background: #f5f5f5; color: #525252; border: 1px solid #d4d4d4; }
+
+    /* ── Status-driven content panels ── */
+    .status-panel {
+      display: none;
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      margin-bottom: 24px;
+    }
+    .status-panel.visible { display: block; }
+
+    /* Pending */
+    .panel-pending { background: #fffbeb; border: 1px solid #fcd34d; }
+    .pulse-row { display: flex; align-items: flex-start; gap: 12px; }
+    .pulse-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #f59e0b;
+      flex-shrink: 0;
+      margin-top: 4px;
+      animation: pulse 1.8s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.2; }
+    }
+    .panel-pending .panel-title { font-weight: 600; font-size: 14px; color: #92400e; }
+    .panel-pending .panel-sub   { font-size: 12px; color: #b45309; margin-top: 4px; }
+
+    /* In Review */
+    .panel-in-review { background: #eff6ff; border: 1px solid #93c5fd; }
+    .panel-in-review .panel-title { font-weight: 600; font-size: 14px; color: #1e40af; }
+    .panel-in-review .panel-sub   { font-size: 12px; color: #3b82f6; margin-top: 4px; }
+
+    /* Planned */
+    .panel-planned { background: #f0fdf4; border: 1px solid #86efac; }
+    .panel-planned .panel-title { font-weight: 600; font-size: 14px; color: #166534; }
+    .panel-planned .panel-sub   { font-size: 12px; color: #16a34a; margin-top: 4px; margin-bottom: 14px; }
+
+    /* Closed */
+    .panel-closed { background: var(--color-rose-pale); border: 1px solid var(--color-border); }
+    .panel-closed .panel-title { font-weight: 600; font-size: 14px; color: var(--color-text); margin-bottom: 12px; }
+
+    .feedback-chips {
+      display: flex;
+      gap: 10px;
+    }
+    .feedback-chip {
+      flex: 1;
+      background: var(--color-card);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius);
+      padding: 9px 12px;
+      font-size: 11px;
+      color: var(--color-text-muted);
+    }
+    .feedback-chip strong {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--color-text);
+      margin-bottom: 2px;
+    }
+    .star-rating { color: var(--color-rose); letter-spacing: 1px; }
+
+    /* ── Scan thumbnail preview row ── */
+    .scan-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .scan-thumb {
+      flex: 1;
+      border-radius: 8px;
+      overflow: hidden;
+      background: var(--color-rose-pale);
+      border: 1px solid var(--color-border);
+    }
+    .scan-thumb img {
+      width: 100%;
+      aspect-ratio: 3/4;
+      object-fit: cover;
+      display: block;
+    }
+    .scan-thumb-empty {
+      width: 100%;
+      aspect-ratio: 3/4;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-rose-light);
+      font-size: 20px;
+    }
+    .scan-expr-label {
+      font-size: 10px;
+      color: var(--color-text-muted);
+      text-align: center;
+      padding: 4px 4px 6px;
+    }
+    .scan-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .scan-footer-note { font-size: 11px; color: var(--color-text-muted); }
+    .scan-link { font-size: 13px; color: var(--color-rose); text-decoration: none; }
+    .scan-link:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="page-stack">
+    <nav class="proto-nav">
+      <a href="index.html" class="active">Injector View</a>
+      <a href="expert-dashboard.html">Expert View</a>
+    </nav>
+    <div class="card">
+      <p class="brand">Arla Aesthetics</p>
+
+      <a href="patient-folder.html" class="back-link">&#8592; Back to Patient</a>
+
+      <!-- Visit identity -->
+      <h1 id="vd-name">Sarah Cohen</h1>
+      <p class="visit-meta" id="vd-meta">Follow-up &middot; April 23, 2026 &middot; ARL-2026-0048</p>
+
+      <!-- Status badge — set by JS -->
+      <span class="status-badge" id="vd-badge"></span>
+
+      <!-- ── Status-driven content panels ── -->
+
+      <div class="status-panel panel-pending" id="panel-pending">
+        <div class="pulse-row">
+          <div class="pulse-dot"></div>
+          <div>
+            <div class="panel-title">Waiting for expert review</div>
+            <div class="panel-sub">Your case has been submitted. An expert will respond within 5 minutes.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="status-panel panel-in-review" id="panel-in-review">
+        <div class="panel-title">Expert is reviewing your case</div>
+        <div class="panel-sub">Dr. Diana Martinez is currently building your treatment plan.</div>
+      </div>
+
+      <div class="status-panel panel-planned" id="panel-planned">
+        <div class="panel-title">Treatment plan ready</div>
+        <div class="panel-sub">Dr. Miriam Gold has prepared a plan for this visit.</div>
+        <a href="treatment-plan.html" class="btn btn-primary"
+           style="display: inline-block; text-decoration: none; width: auto; margin-top: 0; white-space: nowrap;">
+          View Treatment Plan &rarr;
+        </a>
+      </div>
+
+      <div class="status-panel panel-closed" id="panel-closed">
+        <div class="panel-title">Treatment completed</div>
+        <div class="feedback-chips">
+          <div class="feedback-chip">
+            <strong><span class="star-rating">&#9733;&#9733;&#9733;&#9733;&#9733;</span></strong>
+            Rating
+          </div>
+          <div class="feedback-chip">
+            <strong>No</strong>
+            Modified
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Scan summary ── -->
+      <p class="section-heading">Facial Scan</p>
+
+      <div class="scan-row" id="vd-scan-row">
+        <!-- 3 thumbnail previews injected by JS -->
+      </div>
+
+      <div class="scan-footer">
+        <span class="scan-footer-note">7 expressions captured</span>
+        <a href="scan-review.html" class="scan-link">View Full Scan &rarr;</a>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // Change DEMO_STATUS to preview any state: 'pending' | 'in-review' | 'planned' | 'closed'
+    const DEMO_STATUS = 'planned';
+
+    const STATUS_CONFIG = {
+      'pending':   { label: 'Pending',    cls: 'badge-pending',   panel: 'panel-pending'   },
+      'in-review': { label: 'In Review',  cls: 'badge-in-review', panel: 'panel-in-review' },
+      'planned':   { label: 'Plan Ready', cls: 'badge-planned',   panel: 'panel-planned'   },
+      'closed':    { label: 'Closed',     cls: 'badge-closed',    panel: 'panel-closed'    },
+    };
+
+    const cfg = STATUS_CONFIG[DEMO_STATUS] || STATUS_CONFIG['pending'];
+    const badge = document.getElementById('vd-badge');
+    badge.textContent = cfg.label;
+    badge.classList.add(cfg.cls);
+    document.getElementById(cfg.panel).classList.add('visible');
+
+    // Scan thumbnails — first 3 expressions as a preview row
+    const PREVIEW_LABELS = ['Neutral', 'Eyebrows', 'Frown'];
+    const raw = sessionStorage.getItem('arla_capture');
+    const capture = raw ? JSON.parse(raw) : null;
+    const snaps = (capture && Array.isArray(capture.snapshots)) ? capture.snapshots : [];
+
+    const scanRow = document.getElementById('vd-scan-row');
+    PREVIEW_LABELS.forEach(function(label, i) {
+      const wrap = document.createElement('div');
+      wrap.className = 'scan-thumb';
+
+      if (snaps[i]) {
+        const img = document.createElement('img');
+        img.src = snaps[i];
+        img.alt = label;
+        wrap.appendChild(img);
+      } else {
+        // Placeholder face silhouette when no session data is present
+        const ph = document.createElement('div');
+        ph.className = 'scan-thumb-empty';
+        ph.innerHTML = '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>';
+        wrap.appendChild(ph);
+      }
+
+      const lbl = document.createElement('div');
+      lbl.className = 'scan-expr-label';
+      lbl.textContent = label;
+      wrap.appendChild(lbl);
+
+      scanRow.appendChild(wrap);
+    });
+  </script>
+</body>
+</html>
