@@ -69,76 +69,6 @@
       text-decoration: underline;
     }
 
-    /* ── Review screen ── */
-
-    .review-patient {
-      font-size: 14px;
-      color: var(--color-text-muted);
-      margin-bottom: 20px;
-    }
-
-    .thumb-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 10px;
-      margin-bottom: 28px;
-    }
-
-    .thumb-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .thumb-frame {
-      width: 100%;
-      aspect-ratio: 3 / 4;
-      object-fit: cover;
-      border-radius: 6px;
-      background: var(--color-border);
-      display: block;
-    }
-
-    .thumb-label {
-      font-size: 10px;
-      color: var(--color-text-muted);
-      text-align: center;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      line-height: 1.3;
-    }
-
-    /* ── Review video playback ── */
-
-    .review-section-label {
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: var(--color-text-muted);
-      margin-bottom: 8px;
-    }
-
-    .review-video {
-      width: 100%;
-      border-radius: var(--radius);
-      background: #1a1a1a;
-      display: block;
-      margin-bottom: 24px;
-      /* max height keeps it from dominating the card on tall displays */
-      max-height: 320px;
-      object-fit: contain;
-    }
-
-    .no-recording-note {
-      font-size: 13px;
-      color: var(--color-text-muted);
-      background: var(--color-rose-pale);
-      border-radius: 6px;
-      padding: 10px 14px;
-      margin-bottom: 24px;
-    }
-
     /* ── Player control bar ── */
 
     .ctrl-bar {
@@ -308,29 +238,6 @@
     </div>
   </div>
 
-  <!-- ── Review screen (shown after all 7 captures) ── -->
-  <div class="card" id="review-screen" hidden>
-    <p class="brand">Arla Aesthetics</p>
-    <h1>Capture Complete</h1>
-    <p class="review-patient" id="review-patient"></p>
-
-    <!-- Full session recording — populated after MediaRecorder stops -->
-    <div id="review-video-section" hidden>
-      <p class="review-section-label">Full Session Recording</p>
-      <video id="review-video" class="review-video" controls></video>
-    </div>
-
-    <!-- Shown only if MediaRecorder is unsupported or failed -->
-    <p class="no-recording-note" id="no-recording-note" hidden>
-      Video recording is not available in this browser. Still images were captured.
-    </p>
-
-    <p class="review-section-label">Captured Expressions</p>
-    <div class="thumb-grid" id="thumb-grid"></div>
-
-    <button id="submit-btn" class="btn btn-primary">Submit Case</button>
-  </div>
-
   <!-- Cancel confirmation dialog -->
   <div id="cancel-dialog" class="dialog-backdrop" hidden>
     <div class="dialog-box">
@@ -357,7 +264,6 @@
     const TOTAL = EXPRESSIONS.length;
 
     const captureScreen  = document.getElementById('capture-screen');
-    const reviewScreen   = document.getElementById('review-screen');
     const stepLabel      = document.getElementById('step-label');
     const stepBarFill    = document.getElementById('step-bar-fill');
     const exprName       = document.getElementById('expr-name');
@@ -366,38 +272,47 @@
     const camError       = document.getElementById('cam-error');
     const canvas         = document.getElementById('snap-canvas');
     const captureBtn     = document.getElementById('capture-btn');
-    const thumbGrid          = document.getElementById('thumb-grid');
-    const reviewPatient      = document.getElementById('review-patient');
-    const reviewVideoSection = document.getElementById('review-video-section');
-    const reviewVideoEl      = document.getElementById('review-video');
-    const noRecordingNote    = document.getElementById('no-recording-note');
-    const submitBtn          = document.getElementById('submit-btn');
-    const pauseBtn           = document.getElementById('pause-btn');
-    const cancelBtn          = document.getElementById('cancel-btn');
-    const resumeBtn          = document.getElementById('resume-btn');
-    const cancelDialog       = document.getElementById('cancel-dialog');
-    const dialogBody         = cancelDialog.querySelector('.dialog-body');
-    const dialogContinue     = document.getElementById('dialog-continue-btn');
-    const dialogDiscard      = document.getElementById('dialog-discard-btn');
+    const pauseBtn       = document.getElementById('pause-btn');
+    const cancelBtn      = document.getElementById('cancel-btn');
+    const resumeBtn      = document.getElementById('resume-btn');
+    const cancelDialog   = document.getElementById('cancel-dialog');
+    const dialogBody     = cancelDialog.querySelector('.dialog-body');
+    const dialogContinue = document.getElementById('dialog-continue-btn');
+    const dialogDiscard  = document.getElementById('dialog-discard-btn');
 
-    let currentStep = 0;
-    const snapshots = [];
+    let snapshots = [];
     let stream = null;
     let recorder = null;
     const recordedChunks = [];
     let isPaused = false;
 
+    // ── Retake mode detection ──
+    const retakeRaw   = sessionStorage.getItem('arla_retake_index');
+    const retakeMode  = retakeRaw !== null;
+    const retakeIndex = retakeMode ? parseInt(retakeRaw, 10) : -1;
+
     // ── Guard: require session data ──
-    // Accept either a fresh intake form submission or a returning patient selected from the folder.
+    // Accept a fresh intake submission, a returning patient, or a single-expression retake.
     const sessionRaw         = sessionStorage.getItem('arla_intake');
     const selectedPatientRaw = sessionStorage.getItem('arla_selected_patient');
 
-    if (!sessionRaw && !selectedPatientRaw) {
+    if (!sessionRaw && !selectedPatientRaw && !retakeMode) {
       window.location.href = 'intake-form.html';
     }
 
-    const intakeData  = JSON.parse(sessionRaw || selectedPatientRaw || '{}');
-    const patientName = intakeData.name || 'Unknown patient';
+    // In retake mode arla_intake was already cleared; patient info lives in arla_capture.
+    const intakeData  = retakeMode
+      ? JSON.parse(sessionStorage.getItem('arla_capture') || '{}')
+      : JSON.parse(sessionRaw || selectedPatientRaw || '{}');
+    const patientName = intakeData.patientName || intakeData.name || 'Unknown patient';
+
+    // Seed snapshots from existing capture so the retake only replaces one slot.
+    if (retakeMode) {
+      const existing = JSON.parse(sessionStorage.getItem('arla_capture') || '{}');
+      snapshots = Array.isArray(existing.snapshots) ? [...existing.snapshots] : [];
+    }
+
+    let currentStep = retakeMode ? retakeIndex : 0;
 
     // ── Camera init ──
     async function startCamera() {
@@ -414,14 +329,10 @@
       }
     }
 
-    // ── MediaRecorder: start when first expression begins ──
+    // ── MediaRecorder: start on first expression of a full session ──
     function startRecording() {
-      if (!window.MediaRecorder || !stream) {
-        noRecordingNote.hidden = false;
-        return;
-      }
+      if (!window.MediaRecorder || !stream) return;
       try {
-        // Pick the best supported container/codec
         const mimeType = [
           'video/webm;codecs=vp9',
           'video/webm;codecs=vp8',
@@ -435,16 +346,33 @@
           if (e.data && e.data.size > 0) recordedChunks.push(e.data);
         };
 
+        // onstop fires asynchronously; build the blob URL here and pass it to finishCapture.
         recorder.onstop = () => {
           const blob = new Blob(recordedChunks, { type: recorder.mimeType || 'video/webm' });
-          reviewVideoEl.src = URL.createObjectURL(blob);
-          reviewVideoSection.hidden = false;
+          finishCapture(URL.createObjectURL(blob));
         };
 
         recorder.start();
       } catch {
-        noRecordingNote.hidden = false;
+        // Recording unavailable — finishCapture will be called without a video URL.
       }
+    }
+
+    // ── Save capture data and navigate to scan review ──
+    function finishCapture(videoUrl = '') {
+      sessionStorage.setItem('arla_capture', JSON.stringify({
+        snapshots,
+        videoUrl,
+        patientName: intakeData.name      || intakeData.patientName || '',
+        complaint:   intakeData.complaint || '',
+        phone:       intakeData.phone     || '',
+        dob:         intakeData.dob       || '',
+        gender:      intakeData.gender    || '',
+        submittedAt: new Date().toISOString(),
+      }));
+      sessionStorage.setItem('arla_scan_mode', 'submit');
+      sessionStorage.removeItem('arla_intake');
+      window.location.href = 'scan-review.html';
     }
 
     // ── Render step ──
@@ -454,35 +382,6 @@
       stepBarFill.style.width  = `${(index / TOTAL) * 100}%`;
       exprName.textContent     = expr.name;
       exprInstruct.textContent = expr.instruction;
-    }
-
-    // ── Show review ──
-    function showReview() {
-      // Stop the camera
-      if (stream) stream.getTracks().forEach(t => t.stop());
-
-      captureScreen.hidden = true;
-      reviewScreen.hidden = false;
-
-      reviewPatient.textContent = `Patient: ${patientName}`;
-
-      thumbGrid.innerHTML = '';
-      snapshots.forEach((dataURL, i) => {
-        const item = document.createElement('div');
-        item.className = 'thumb-item';
-
-        const img = document.createElement('img');
-        img.className = 'thumb-frame';
-        img.src = dataURL;
-        img.alt = EXPRESSIONS[i].name;
-
-        const label = document.createElement('span');
-        label.className = 'thumb-label';
-        label.textContent = EXPRESSIONS[i].name;
-
-        item.append(img, label);
-        thumbGrid.appendChild(item);
-      });
     }
 
     // ── Pause / Resume / Cancel ──
@@ -505,9 +404,9 @@
     });
 
     cancelBtn.addEventListener('click', () => {
-      // Update dialog count from current state; never touch captureStatus here
-      dialogBody.textContent =
-        `${currentStep} of ${TOTAL} expressions have been captured. All progress will be lost.`;
+      dialogBody.textContent = retakeMode
+        ? 'Discard this retake? The original capture will be kept.'
+        : `${currentStep} of ${TOTAL} expressions have been captured. All progress will be lost.`;
       cancelDialog.hidden = false;
     });
 
@@ -517,14 +416,19 @@
 
     dialogDiscard.addEventListener('click', () => {
       if (stream) stream.getTracks().forEach(t => t.stop());
-      sessionStorage.removeItem('arla_intake');
-      window.location.href = 'index.html';
+      if (retakeMode) {
+        sessionStorage.removeItem('arla_retake_index');
+        window.location.href = 'scan-review.html';
+      } else {
+        sessionStorage.removeItem('arla_intake');
+        window.location.href = 'index.html';
+      }
     });
 
     // ── Capture click ──
     captureBtn.addEventListener('click', () => {
-      // Start the video recording on the very first capture
-      if (currentStep === 0) {
+      // Start full-session recording on the very first capture (not during retakes).
+      if (currentStep === 0 && !retakeMode) {
         startRecording();
         cancelBtn.hidden = false;
         pauseBtn.hidden  = false;
@@ -542,38 +446,37 @@
       ctx.drawImage(video, 0, 0, vw, vh);
 
       const dataURL = canvas.toDataURL('image/jpeg', 0.85);
-      snapshots.push(dataURL);
+      // Index assignment works for both normal (sequential) and retake (single slot) flows.
+      snapshots[currentStep] = dataURL;
 
       currentStep++;
-      if (currentStep < TOTAL) {
+
+      if (retakeMode) {
+        // Retake complete — write the updated snapshot back into arla_capture and return.
+        const existing = JSON.parse(sessionStorage.getItem('arla_capture') || '{}');
+        existing.snapshots = snapshots;
+        sessionStorage.setItem('arla_capture', JSON.stringify(existing));
+        sessionStorage.removeItem('arla_retake_index');
+        if (stream) stream.getTracks().forEach(t => t.stop());
+        window.location.href = 'scan-review.html';
+      } else if (currentStep < TOTAL) {
         renderStep(currentStep);
         stepBarFill.style.width = `${(currentStep / TOTAL) * 100}%`;
       } else {
-        // Stop recording — onstop handler will create the blob URL and show the player
-        if (recorder && recorder.state !== 'inactive') recorder.stop();
-        showReview();
+        // All expressions captured — stop recorder (onstop calls finishCapture) or finish directly.
+        if (recorder && recorder.state !== 'inactive') {
+          recorder.stop();
+        } else {
+          finishCapture('');
+        }
       }
     });
 
-    // ── Submit click ──
-    submitBtn.addEventListener('click', () => {
-      sessionStorage.setItem('arla_capture', JSON.stringify({
-        snapshots,
-        videoUrl:    reviewVideoEl.src,
-        patientName: intakeData.name      || '',
-        complaint:   intakeData.complaint || '',
-        phone:       intakeData.phone     || '',
-        dob:         intakeData.dob       || '',
-        gender:      intakeData.gender    || '',
-        submittedAt: new Date().toISOString(),
-      }));
-      sessionStorage.removeItem('arla_intake');
-      window.location.href = 'case-submitted.html';
-    });
-
     // ── Init ──
-    renderStep(0);
+    renderStep(currentStep);
     startCamera();
+    // Show cancel button immediately in retake mode so the user can abort before capturing.
+    if (retakeMode) cancelBtn.hidden = false;
   </script>
 </body>
 </html>
