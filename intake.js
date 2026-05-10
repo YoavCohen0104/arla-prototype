@@ -133,6 +133,10 @@ function initForm() {
   let dupDismissed = false;
 
   if (phoneInput && dupWarning) {
+    phoneInput.addEventListener('input', () => {
+      dupDismissed = false;
+    });
+
     phoneInput.addEventListener('blur', () => {
       if (dupDismissed) return;
       const match = findDuplicatePatient(phoneInput.value.trim());

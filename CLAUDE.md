@@ -87,8 +87,11 @@ Payload fields: `rating` (int 0–5), `modified` (`"yes"` / `"no"`), `comment` (
 - facial-capture.html — 7 guided expressions in sequence:
   neutral/serious, raised eyebrows, frown, smile, sad,
   left side view (90°), right side view (90°).
-  Manual initiation per expression. Under ~1 minute total.
+  Live camera feed with real video recording.
+  Manual capture per expression. Under ~1 minute total.
   Still image extraction after capture.
+  Pause/Resume/Cancel controls.
+  Pre-submission review with per-expression retake.
 - intake-confirm.html — read-only summary, edit button,
   confirm and start case button
 - case-submitted.html — pending state, expert assigned,
@@ -120,10 +123,10 @@ Pending → In Review → Planned → Closed
 - No cross-patient navigation on clinic device
 
 ### Out of scope for prototype
-- Real video capture (use placeholder)
+- Automatic expression detection to trigger capture
+- Automatic quality validation (lighting, blur)
+- Automatic re-capture enforcement
 - Real backend or database
 - Real authentication system
-- Automatic expression detection
-- Quality validation (lighting, blur)
 - Patient history / analytics
 - EMR integration
