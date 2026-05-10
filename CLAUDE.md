@@ -32,83 +32,83 @@ npx serve .
 
 ## Architecture
 
-### Two distinct flows
+### Three user flows
 
-**Intake flow** (injector creates a case):
-- `clinic-login.html` — injector login with email/password and WebAuthn biometric stub
-- `intake-form.html` — patient intake form, step 1 of 2
-- `intake-confirm.html` — review and confirm patient details, step 2 of 2
+**New-patient intake flow:**
+`clinic-login.html` → `intake-form.html` → `intake-confirm.html` → `facial-capture.html` → `scan-review.html` (submit mode) → `case-submitted.html`
 
-**Treatment plan loop** (prototype, no real backend):
-- `index.html` — prototype entry point listing all three steps
-- `case-submitted.html` — pending state after injector submits a case (step 1 of 3)
-- `treatment-plan.html` — expert assessment with annotated injection points (step 2 of 3)
-- `feedback.html` — injector rates the plan and logs modifications (step 3 of 3)
+**Returning-patient flow** (bypasses intake):
+`index.html` (patient search) → `patient-folder.html` → `facial-capture.html` (with `arla_selected_patient` set) → `scan-review.html` (submit mode) → `case-submitted.html`
 
-All treatment-loop pages share a `.proto-nav` bar for free navigation between screens during prototyping.
+**Expert flow:**
+`expert-dashboard.html` → `expert-annotation.html` → `treatment-plan.html` → `feedback.html`
+
+All pages share a two-link `.proto-nav` bar (`index.html` ↔ `expert-dashboard.html`) for prototyping navigation.
 
 ### Shared JS (`intake.js`)
-`intake.js` is loaded by both intake pages. It detects which page it's on by checking for specific root elements (`#intake-form` vs `#confirm-container`) and calls the appropriate init function. The login page and all treatment-loop pages keep their JS inline — follow that split: inline for simple single-page scripts, shared file for multi-page logic.
+Loaded by both `intake-form.html` and `intake-confirm.html`. Detects the active page by checking for `#intake-form` vs `#confirm-container` and calls the appropriate init function. All other pages keep JS inline. Follow this split: shared file only for logic that spans multiple pages.
 
-### Data flow between intake pages
-Form data passes from `intake-form.html` to `intake-confirm.html` via `sessionStorage` under the key `arla_intake` (JSON). If the confirm page loads without session data, it redirects back to the form. On final confirm, the session entry is cleared.
+### sessionStorage keys (the cross-page data bus)
+
+| Key | Written by | Read by | Removed by |
+|-----|-----------|---------|-----------|
+| `arla_intake` | `intake.js` (form submit) | `intake.js` (confirm page), `facial-capture.html` | `facial-capture.html` (`finishCapture`) |
+| `arla_selected_patient` | `patient-folder.html` | `facial-capture.html` | `facial-capture.html` (`finishCapture`) |
+| `arla_capture` | `facial-capture.html` (`finishCapture`), retake path | `scan-review.html`, `case-submitted.html`, `visit-details.html`, `treatment-plan.html` | never (survives session) |
+| `arla_scan_mode` | `facial-capture.html` (`finishCapture` sets `'submit'`) | `scan-review.html` | never |
+| `arla_retake_index` | `scan-review.html` (Retake button) | `facial-capture.html` | `facial-capture.html` (on capture or discard) |
+| `arla_annotation_draft` | `expert-annotation.html` (Save Draft / auto-save) | `expert-annotation.html` (on load) | never |
+| `arla_annotation` | `expert-annotation.html` (Submit Plan) | `treatment-plan.html` | never |
+
+**Key data shapes:**
+- `arla_intake` / `arla_selected_patient`: `{ name, phone, dob, gender, complaint, createdAt }`
+- `arla_capture`: `{ snapshots: string[], videoUrl: string, patientName, complaint, phone, dob, gender, submittedAt }`
+- `arla_annotation`: `{ dots: [{x, y, depth, units, label}], notes: string }`
+
+### `scan-review.html` dual-mode design
+Controlled by `arla_scan_mode` (`'submit'` vs `'review'`). In `submit` mode: shows Retake buttons per expression and a Submit Case button; back-link is hidden. In `review` mode: read-only, back-link to `patient-folder.html` shown. All content is injected by JS — the HTML shell is empty except for a brand header.
+
+### `facial-capture.html` retake mode
+When `arla_retake_index` is present in sessionStorage, the page starts at that expression index, pre-seeds `snapshots` from existing `arla_capture`, and on capture writes only that slot back. Recording is skipped. Cancel discards the retake (keeps existing capture) and returns to `scan-review.html`.
+
+### Expert annotation save/restore pattern
+`expert-annotation.html` auto-saves dot placement and notes to `arla_annotation_draft` on every change and restores on page load. On "Submit Plan", the draft is promoted to `arla_annotation` (the canonical read key for `treatment-plan.html`).
 
 ### Injection marker pattern (`treatment-plan.html`)
-Numbered dots overlaid on the clinical photo and the ordered list below are linked by `data-point` attributes. Hovering either a marker or its corresponding list item highlights both via the `.highlight` CSS class. This sync is driven by inline JS at the bottom of `treatment-plan.html`.
+Numbered dots overlaid on the clinical photo and the ordered list below are linked by `data-point` attributes. Hovering either highlights both via the `.highlight` CSS class. Driven by inline JS.
 
 ### Validation pattern
-All forms use `novalidate` to suppress native browser validation. Custom JS validation applies the `.invalid` CSS class to the input and `.visible` to its sibling `.error-msg` span. Errors clear on the next `input` event for immediate feedback.
+All forms use `novalidate`. Custom JS applies `.invalid` to the input and `.visible` to its sibling `.error-msg` span. Errors clear on the next `input` event.
 
 ### CSS design tokens
-All colors, radius, and shadow are CSS custom properties defined in `:root` in `style.css`. New pages must reference these variables rather than hardcoding values.
+All colors, radius, and shadow are CSS custom properties in `:root` in `style.css`. Never hardcode these values in new pages.
 
 ### Page-scoped styles
-Pages with significant UI complexity (`clinic-login.html`, `expert-dashboard.html`, `treatment-plan.html`) declare a `<style>` block in `<head>` for their page-specific CSS. Do not add page-specific styles to `style.css` — only shared, reusable styles belong there.
+Pages with significant UI complexity declare a `<style>` block in `<head>`. Do not add page-specific styles to `style.css` — only shared, reusable styles belong there.
 
 ### Feedback webhook
 Completed feedback forms POST JSON to:
 ```
 https://yoavcohen.app.n8n.cloud/webhook/arla-feedback
 ```
-Payload fields: `rating` (int 0–5), `modified` (`"yes"` / `"no"`), `comment` (string), `timestamp` (ISO 8601). The form shows a success message regardless of webhook response so that a network failure never blocks the injector.
+Payload: `rating` (int 0–5), `modified` (`"yes"` / `"no"`), `comment` (string), `timestamp` (ISO 8601). The form shows success regardless of webhook response so a network failure never blocks the injector.
 
 ## PDD Requirements (Key MVP Screens & Flows)
 
 ### Required screens
-- index.html — injector home page showing clinic state:
-  active cases count, pending cases, next action card.
-  Navigation to all flows. Role-aware (injector vs expert 
-  see different views).
-- clinic-login.html — secure login, email + password, 
-  role-based access (Injector, Assistant, Expert)
-- intake-form.html — full name, phone number, birth date, 
-  gender, chief complaint (free text). All required with 
-  validation. Privacy lock after submission.
-- facial-capture.html — 7 guided expressions in sequence:
-  neutral/serious, raised eyebrows, frown, smile, sad,
-  left side view (90°), right side view (90°).
-  Live camera feed with real video recording.
-  Manual capture per expression. Under ~1 minute total.
-  Still image extraction after capture.
-  Pause/Resume/Cancel controls.
-  Pre-submission review with per-expression retake.
-- intake-confirm.html — read-only summary, edit button,
-  confirm and start case button
-- case-submitted.html — pending state, expert assigned,
-  ~5 min response time indicator. Injector can view 
-  but not edit after submission.
-- expert-annotation.html — expert can click on face image
-  to place numbered dots, set depth per dot 
-  (Superficial/Deep, two-color system), add dosage units
-  per dot, add free-text notes. Submit Plan button.
-- treatment-plan.html — read-only expert plan for injector.
-  Face image with numbered dots, depth color coding,
-  dosage per point, expert notes. Cannot be modified.
-- feedback.html — rating 1-5, optional short comment,
-  indication whether plan was modified (yes/no).
-  Mandatory before case closes.
-- expert-dashboard.html — case queue, SLA indicators,
-  expert profile, cases by status
+- `index.html` — injector home, active/pending case counts, next-action card, patient search
+- `clinic-login.html` — email + password, role-based access (Injector, Assistant, Expert)
+- `intake-form.html` — full name, phone, birth date, gender, chief complaint; all required with validation; duplicate phone detection
+- `facial-capture.html` — 7 guided expressions, live camera, manual capture per expression, pause/resume/cancel, retake support
+- `intake-confirm.html` — read-only summary, edit button, confirm and start case
+- `scan-review.html` — post-capture review with per-expression retake (submit mode) or read-only scan viewer (review mode)
+- `patient-folder.html` — returning patient demographics, case history, new case CTA
+- `visit-details.html` — status-driven case detail (Pending / In Review / Planned / Closed), scan preview
+- `case-submitted.html` — pending state, expert assigned, ~5 min response indicator
+- `expert-annotation.html` — click-to-place numbered dots, depth (Superficial/Deep), dosage per dot, notes, draft save, submit plan
+- `treatment-plan.html` — read-only plan for injector: annotated face image, depth color coding, dosage, expert notes
+- `feedback.html` — rating 1–5, optional comment, modified yes/no; mandatory before case closes
+- `expert-dashboard.html` — case queue, SLA indicators, expert profile, cases by status
 
 ### Case status lifecycle
 Pending → In Review → Planned → Closed
@@ -123,9 +123,8 @@ Pending → In Review → Planned → Closed
 - No cross-patient navigation on clinic device
 
 ### Out of scope for prototype
-- Automatic expression detection to trigger capture
+- Automatic expression detection
 - Automatic quality validation (lighting, blur)
-- Automatic re-capture enforcement
 - Real backend or database
 - Real authentication system
 - Patient history / analytics
